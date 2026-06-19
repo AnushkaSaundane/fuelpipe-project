@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-6$_x!$fj0cebu$(it7)+a@(yo@!n-16lp(dczsazy%_^w)89rm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*', '.trycloudflare.com'
-                'yourusername.pythonanywhere.com']
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',  # For FlareGUI
@@ -148,7 +147,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
