@@ -1,6 +1,9 @@
-Django
-gunicorn
-whitenoise
-pandas
-django-import-export
-openpyxl
+Django==5.2.7
+django-import-export==4.4.0
+gunicorn==26.0.0
+pillow==11.3.0
+pandas==2.3.1
+openpyxl==3.1.5
+mysql-connector-python==9.4.0
+requests==2.32.5
+whitenoise==6.9.0
