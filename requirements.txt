@@ -1,4 +1,6 @@
-Django==5.2.7
+Django
 gunicorn
+whitenoise
+pandas
 django-import-export
-Pillow
+openpyxl
