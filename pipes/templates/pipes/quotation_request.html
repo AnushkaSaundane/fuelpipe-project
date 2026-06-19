@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body style="font-family: Arial;">
+
+<h2>Quotation Request</h2>
+
+<p><b>Name:</b> {{ name }}</p>
+<p><b>Email:</b> {{ email }}</p>
+<p><b>Phone:</b> {{ phone }}</p>
+<p><b>Company:</b> {{ company }}</p>
+<p><b>Message:</b> {{ message }}</p>
+
+<br><br>
+
+<table border="1"
+       cellspacing="0"
+       cellpadding="10"
+       width="100%"
+       style="border-collapse: collapse;">
+
+    <tr style="background:#2563eb;color:white;">
+
+        <th>Image</th>
+        <th>Part Number</th>
+        <th>Price</th>
+        <th>Quantity</th>
+
+    </tr>
+
+    {% for item in products %}
+
+    <tr>
+
+        <td align="center">
+
+            <img src="cid:{{ item.image_cid }}"
+                 width="120">
+
+        </td>
+
+        
+
+        <td>
+            {{ item.part_number }}
+        </td>
+
+        <td>
+            ₹{{ item.price }}
+        </td>
+
+        <td>
+            {{ item.quantity }}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,569 @@
+{% extends 'pipes/base.html' %}
+
+{% block content %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%), 
+                    url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        padding: 8rem 0;
+        text-align: center;
+        margin-top: -80px;
+        padding-top: 12rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(37, 99, 235, 0.3), rgba(245, 158, 11, 0.3));
+        z-index: 1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero h2 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #fff, #e2e8f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        margin-bottom: 2.5rem;
+        color: #cbd5e1;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 4rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+    }
+
+    .stat-label {
+        color: #cbd5e1;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section {
+        padding: 6rem 0;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-title h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .section-title p {
+        font-size: 1.125rem;
+        color: var(--gray);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .feature {
+        background: white;
+        padding: 2.5rem 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+        transition: var(--transition);
+        border: 1px solid var(--gray-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .feature:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+    }
+
+    .feature h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .feature p {
+        color: var(--gray);
+        line-height: 1.6;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        border: 1px solid var(--gray-light);
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .product-img {
+        height: 220px;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .product-card:hover .product-img img {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-category {
+        display: inline-block;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .product-info h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: var(--dark);
+    }
+
+    .product-info p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .customers-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 6rem 0;
+        position: relative;
+    }
+
+    .customers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .customer-logo {
+        background: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        border: 1px solid var(--gray-light);
+    }
+
+    .customer-logo:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .customer-logo h3 {
+        color: var(--dark);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .cta {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 6rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .cta h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+
+    .cta p {
+        font-size: 1.125rem;
+        margin-bottom: 2.5rem;
+        color: #e2e8f0;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .hero h2 {
+            font-size: 2.5rem;
+        }
+        
+        .hero p {
+            font-size: 1.125rem;
+        }
+        
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-content animate-fade-in-up">
+            <h2>Manufacturer of Low Pressure Nylon Tubes & Assemblies</h2>
+            <p>Premium quality automotive components trusted by industry leaders. Engineered for excellence, built for durability.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'products' %}" class="btn btn-accent">
+                    <i class="fas fa-box-open"></i> Explore Products
+                </a>
+                <a href="{% url 'contact' %}" class="btn btn-outline">
+                    <i class="fas fa-phone"></i> Get Quote
+                </a>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">15+</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Products</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Happy Clients</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">Industry Leaders</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-title animate-fade-in-up">
+            <h2>Why Choose SP Auto Parts</h2>
+            <p>We combine cutting-edge technology with decades of expertise to deliver unmatched quality</p>
+        </div>
+        <div class="features">
+            <div class="feature animate-fade-in-up">
+                <div class="feature-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h3>Quality Certified</h3>
+                <p>All our products meet international quality standards with comprehensive testing and certification.</p>
+            </div>
+            <div class="feature animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="feature-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3>Advanced Manufacturing</h3>
+                <p>State-of-the-art production facilities equipped with the latest technology and machinery.</p>
+            </div>
+            <div class="feature animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Expert Team</h3>
+                <p>Highly skilled engineers and technicians with decades of industry experience.</p>
+            </div>
+            <div class="feature animate-fade-in-up" style="animation-delay: 0.6s;">
+                <div class="feature-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h3>Timely Delivery</h3>
+                <p>Efficient supply chain management ensuring on-time delivery across India.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="customers-section">
+    <div class="container">
+        <div class="section-title animate-fade-in-up">
+            <h2>Trusted By Industry Leaders</h2>
+            <p>We are proud to be the preferred supplier for these automotive giants</p>
+        </div>
+        <div class="customers-grid">
+            <div class="customer-logo animate-fade-in-up">
+                <h3>Ashok Leyland</h3>
+            </div>
+            <div class="customer-logo animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h3>Tata Motors</h3>
+            </div>
+            <div class="customer-logo animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h3>Eicher Motors</h3>
+            </div>
+            <div class="customer-logo animate-fade-in-up" style="animation-delay: 0.3s;">
+                <h3>Mahindra & Mahindra</h3>
+            </div>
+            <div class="customer-logo animate-fade-in-up" style="animation-delay: 0.4s;">
+                <h3>JCB India</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="background: white;">
+    <div class="container">
+        <div class="section-title animate-fade-in-up">
+            <h2>Featured Products</h2>
+            <p>Explore our premium range of automotive components</p>
+        </div>
+        <div class="products-grid">
+            {% for product in featured_products %}
+            <div class="product-card animate-fade-in-up">
+                <div class="product-img">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <i class="fas fa-pipe" style="font-size: 4rem; color: var(--primary);"></i>
+                    {% endif %}
+                    {% if product.is_featured %}
+                    <div class="product-badge">Featured</div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <span class="product-category">{{ product.get_product_type_display }}</span>
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description|truncatewords:15 }}</p>
+                    {% if product.price %}
+                    <div class="product-price">₹{{ product.price }}</div>
+                    {% else %}
+                    <div class="product-price" style="color: #f59e0b;">Price on Request</div>                           <i class="fas fa-eye"></i> View Details
+                    {% endif %}    
+                    <a href="{% url 'product_detail' product.id %}" class="btn" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="products-grid" style="grid-column: 1 / -1;">
+                <div class="product-card animate-fade-in-up">
+                    <div class="product-img">
+                        <i class="fas fa-pipe" style="font-size: 4rem; color: var(--primary);"></i>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">Nylon Tubes</span>
+                        <h3>Automotive Nylon Fuel Tubes</h3>
+                        <p>High-quality low pressure nylon tubes for automotive applications with excellent durability.</p>
+                        <a href="{% url 'products' %}?type=nylon_tubes" class="btn" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-eye"></i> View Products
+                        </a>
+                    </div>
+                </div>
+                <div class="product-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="product-img">
+                        <i class="fas fa-tint" style="font-size: 4rem; color: var(--primary);"></i>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">Hoses</span>
+                        <h3>Industrial Grade Hoses</h3>
+                        <p>Durable hoses designed for optimal performance in various automotive systems.</p>
+                        <a href="{% url 'products' %}?type=hoses" class="btn" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-eye"></i> View Products
+                        </a>
+                    </div>
+                </div>
+                <div class="product-card animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <div class="product-img">
+                        <i class="fas fa-cogs" style="font-size: 4rem; color: var(--primary);"></i>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">Assemblies</span>
+                        <h3>Complete Assemblies</h3>
+                        <p>Ready-to-install assemblies for seamless integration in automotive applications.</p>
+                        <a href="{% url 'products' %}?type=assemblies" class="btn" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-eye"></i> View Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="{% url 'products' %}" class="btn btn-accent">
+                <i class="fas fa-boxes"></i> View All Products
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <div class="cta-content animate-fade-in-up">
+            <h2>Ready to Elevate Your Automotive Solutions?</h2>
+            <p>Partner with us for premium quality nylon tubes and assemblies. Get custom solutions tailored to your specific requirements.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'contact' %}" class="btn btn-accent">
+                    <i class="fas fa-paper-plane"></i> Get Free Quote
+                </a>
+                <a href="tel:+918317281555" class="btn btn-outline">
+                    <i class="fas fa-phone"></i> Call Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

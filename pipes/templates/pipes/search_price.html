@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Product Price</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .search-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .result {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .error {
+            background: #fee;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #f00;
+        }
+        
+        .price {
+            font-size: 24px;
+            color: #059669;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-box">
+        <h1>🔍 Search Product Price</h1>
+        <p>Enter part number or product name to check price</p>
+        
+        <form method="get" action="{% url 'search_price' %}">
+            <input type="text" 
+                   name="q" 
+                   value="{{ query }}" 
+                   placeholder="Example: SP-NT-001 or Nylon Tube" 
+                   required>
+            <button type="submit">Search Price</button>
+        </form>
+        
+        {% if product %}
+        <div class="result">
+            <h2>✅ Product Found!</h2>
+            <p><strong>Product:</strong> {{ product.name }}</p>
+            <p><strong>Part Number:</strong> {{ product.part_number|default:"Not specified" }}</p>
+            <p><strong>Price:</strong> <span class="price">₹{{ product.price }}</span></p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+        </div>
+        {% elif query %}
+        <div class="error">
+            <h2>❌ No Product Found</h2>
+            <p>No product found with part number or name: "<strong>{{ query }}</strong>"</p>
+            <p>Please check the part number or try a different search term.</p>
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <h3>💡 How to search:</h3>
+            <ul>
+                <li>Enter exact part number (e.g., SP-NT-001)</li>
+                <li>Or enter product name (e.g., Nylon Tube)</li>
+                <li>Try partial names if exact doesn't work</li>
+            </ul>
+            <p><a href="/admin/pipes/product/" style="color: #2563eb;">Add products in admin panel</a></p>
+        </div>
+    </div>
+</body>
+</html>

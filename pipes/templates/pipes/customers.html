@@ -1,0 +1,174 @@
+{% extends 'pipes/base.html' %}
+
+{% block content %}
+<style>
+    .page-header {
+        padding: 60px 0 40px;
+        text-align: center;
+        background-color: #f9f9f9;
+        margin-top: -80px;
+        padding-top: 140px;
+    }
+
+    .page-header h1 {
+        font-size: 36px;
+        margin-bottom: 15px;
+        color: var(--dark);
+    }
+
+    .page-header p {
+        color: var(--gray);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .customers-section {
+        padding: 80px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .section-title h2 {
+        font-size: 36px;
+        color: var(--dark);
+        margin-bottom: 15px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title h2::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -10px;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+
+    .customers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        align-items: center;
+    }
+
+    .customer-card {
+        background-color: white;
+        padding: 30px 20px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        transition: transform 0.3s;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .customer-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .customer-card h3 {
+        font-size: 20px;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .testimonials {
+        background-color: #f9f9f9;
+        padding: 80px 0;
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .testimonial-card {
+        background-color: white;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        margin-bottom: 20px;
+        color: var(--gray);
+    }
+
+    .testimonial-author {
+        font-weight: 600;
+        color: var(--dark);
+    }
+</style>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Our Esteemed Customers</h1>
+        <p>Trusted by leading automotive manufacturers across India</p>
+    </div>
+</section>
+
+<section class="customers-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Our Valued Clients</h2>
+            <p>We are proud to serve these industry leaders with our high-quality nylon tubes and assemblies</p>
+        </div>
+        <div class="customers-grid">
+            <div class="customer-card">
+                <h3>Ashok Leyland</h3>
+            </div>
+            <div class="customer-card">
+                <h3>Tata Motors</h3>
+            </div>
+            <div class="customer-card">
+                <h3>Eicher Motors</h3>
+            </div>
+            <div class="customer-card">
+                <h3>Mahindra & Mahindra</h3>
+            </div>
+            <div class="customer-card">
+                <h3>JCB India</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <div class="container">
+        <div class="section-title">
+            <h2>Industry Recognition</h2>
+            <p>Our commitment to quality and service has earned us the trust of major automotive manufacturers</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-text">
+                    "SP AUTO PARTS SOLUTION has been our reliable partner for nylon tube assemblies. Their products consistently meet our quality standards and delivery timelines."
+                </div>
+                <div class="testimonial-author">- Procurement Manager, Leading Automotive Company</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-text">
+                    "The quality of nylon tubes from SP AUTO PARTS SOLUTION is exceptional. Their technical support and customization capabilities have been invaluable for our projects."
+                </div>
+                <div class="testimonial-author">- Engineering Head, Commercial Vehicles</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-text">
+                    "We've been working with SP AUTO PARTS SOLUTION for years. Their consistent quality and reliable supply chain make them our preferred vendor for tube assemblies."
+                </div>
+                <div class="testimonial-author">- Supply Chain Director, Automotive OEM</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

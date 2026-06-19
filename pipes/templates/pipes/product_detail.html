@@ -1,0 +1,674 @@
+{% extends 'pipes/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - SP AUTO PARTS{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+    }
+
+    .modal.show {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        position: relative;
+    }
+
+    /* Zoom Container */
+    .zoom-container {
+        position: relative;
+        width: 90%;
+        height: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .zoom-image {
+        max-width: 100%;
+        max-height: 100%;
+        transition: transform 0.2s ease;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .zoom-image:active {
+        cursor: grabbing;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 20px;
+        border-radius: 50px;
+        z-index: 10001;
+    }
+
+    .zoom-controls button {
+        background: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .zoom-controls button:hover {
+        background: #2563eb;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .zoom-controls .reset-btn {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .reset-btn:hover {
+        background: #d97706;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #fff;
+        font-size: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 10001;
+    }
+
+    .close-modal:hover {
+        color: #f59e0b;
+    }
+
+    .zoom-level {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        z-index: 10001;
+    }
+
+    /* Product Page Styles */
+    .product-detail-page {
+        padding: 40px 0;
+        background: #f1f5f9;
+        min-height: 100vh;
+    }
+
+    .product-container {
+        max-width: 1200px;
+        margin: auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .product-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-image-section {
+        padding: 40px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .product-image-container {
+        width: 100%;
+        height: 400px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+
+    .product-image-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        padding: 20px;
+    }
+
+    .zoom-hint {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 13px;
+        color: #64748b;
+        background: #e2e8f0;
+        padding: 8px 20px;
+        border-radius: 30px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .product-info-section {
+        padding: 40px;
+    }
+
+    .product-badge {
+        display: inline-block;
+        background: #dbeafe;
+        color: #2563eb;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .product-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 15px;
+    }
+
+    .product-part-number {
+        font-size: 16px;
+        color: #64748b;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .price-box {
+        background: #ecfdf5;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .price-box h2 {
+        color: #16a34a;
+        font-size: 32px;
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: #2563eb;
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .btn-secondary {
+        flex: 1;
+        background: white;
+        color: #2563eb;
+        padding: 14px;
+        border: 2px solid #2563eb;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .description-section {
+        margin-top: 30px;
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .feature-item {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .feature-item i {
+        font-size: 24px;
+        color: #2563eb;
+        margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .product-row {
+            grid-template-columns: 1fr;
+        }
+        .product-image-section {
+            border-right: none;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .zoom-controls button {
+            width: 35px;
+            height: 35px;
+            font-size: 16px;
+        }
+        .close-modal {
+            top: 10px;
+            right: 20px;
+            font-size: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Modal with Zoom Controls -->
+<div id="imageZoomModal" class="modal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div class="zoom-controls">
+        <button onclick="zoomOut()" title="Zoom Out">−</button>
+        <button onclick="resetZoom()" class="reset-btn" title="Reset">⟳</button>
+        <button onclick="zoomIn()" title="Zoom In">+</button>
+    </div>
+    <div class="zoom-level" id="zoomLevel">100%</div>
+    <div class="modal-content">
+        <div class="zoom-container" id="zoomContainer">
+            <img id="modalImage" class="zoom-image" src="" alt="Product Image" draggable="false">
+        </div>
+    </div>
+</div>
+
+<section class="product-detail-page">
+    <div class="container">
+        <div class="product-container">
+            <div class="product-row">
+                <!-- IMAGE SECTION -->
+                <div class="product-image-section">
+                    <div class="product-image-container" onclick="openModal()">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" id="productImage">
+                        {% else %}
+                            <img src="{% static 'images/no-image.png' %}" alt="No Image">
+                        {% endif %}
+                    </div>
+                    <div class="zoom-hint" onclick="openModal()">
+                        <i class="fas fa-search-plus"></i> Click to Zoom Image
+                    </div>
+                </div>
+
+                <!-- INFO SECTION -->
+                <div class="product-info-section">
+                    <span class="product-badge">{{ product.get_product_type_display }}</span>
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    
+                    {% if product.part_number %}
+                    <div class="product-part-number">
+                        <i class="fas fa-barcode"></i> Part No: {{ product.part_number }}
+                    </div>
+                    {% endif %}
+
+                    <div class="price-box">
+                        {% if product.price %}
+                        <h2>₹ {{ product.price }}</h2>
+                        {% else %}
+                        <h2>Price on Request</h2>
+                        {% endif %}
+                        
+                    </div>
+
+                    <div class="action-buttons">
+    <button type="button" class="btn-primary" id="addToCartBtn">
+        <i class="fas fa-cart-plus"></i> Add to Cart
+    </button>
+    
+    <a href="https://wa.me/918317281555?text=Hello%20I%20want%20to%20order%20{{ product.name|urlencode }}" 
+       target="_blank" class="btn-secondary">
+        <i class="fab fa-whatsapp"></i> WhatsApp Order
+    </a>
+</div>
+
+<!-- Toast Notification for Cart -->
+<div id="cartToast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 15px 25px; border-radius: 10px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 250px;">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Product added to cart!</span>
+    <a href="{% url 'cart' %}" style="color: white; text-decoration: underline; margin-left: 10px;">View Cart →</a>
+</div>
+
+                    <div class="description-section">
+                        <h3><i class="fas fa-align-left"></i> Description</h3>
+                        <p>{{ product.description }}</p>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-truck"></i>
+                            <span>Fast Delivery</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Quality Assured</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-headset"></i>
+                            <span>24/7 Support</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-certificate"></i>
+                            <span>ISO Certified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Zoom variables
+let currentZoom = 1;
+const minZoom = 0.5;
+const maxZoom = 4;
+let isPanning = false;
+let startX, startY;
+let translateX = 0;
+let translateY = 0;
+
+// Get elements
+const modal = document.getElementById('imageZoomModal');
+const modalImg = document.getElementById('modalImage');
+const zoomContainer = document.getElementById('zoomContainer');
+
+// Set image source
+const productImageUrl = "{% if product.image %}{{ product.image.url }}{% endif %}";
+const productImageAlt = "{{ product.name }}";
+
+// Open Modal
+function openModal() {
+    if (!productImageUrl) {
+        alert('No image available for this product');
+        return;
+    }
+    modalImg.src = productImageUrl;
+    modalImg.alt = productImageAlt;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    resetZoom();
+}
+
+// Close Modal
+function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    resetZoom();
+}
+
+// Zoom In
+function zoomIn() {
+    if (currentZoom < maxZoom) {
+        currentZoom += 0.25;
+        applyZoom();
+    }
+}
+
+// Zoom Out
+function zoomOut() {
+    if (currentZoom > minZoom) {
+        currentZoom -= 0.25;
+        applyZoom();
+    }
+}
+
+// Reset Zoom
+function resetZoom() {
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    applyZoom();
+}
+
+// Apply zoom and pan
+function applyZoom() {
+    modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+    document.getElementById('zoomLevel').innerHTML = Math.round(currentZoom * 100) + '%';
+    
+    // Enable/disable panning based on zoom level
+    if (currentZoom > 1) {
+        modalImg.style.cursor = 'grab';
+    } else {
+        modalImg.style.cursor = 'default';
+    }
+}
+
+// Pan/drag functionality
+function startPan(e) {
+    if (currentZoom <= 1) return;
+    e.preventDefault();
+    isPanning = true;
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    modalImg.style.cursor = 'grabbing';
+}
+
+function pan(e) {
+    if (!isPanning || currentZoom <= 1) return;
+    e.preventDefault();
+    translateX = e.clientX - startX;
+    translateY = e.clientY - startY;
+    
+    // Limit panning boundaries
+    const container = modalImg.parentElement;
+    const containerRect = container.getBoundingClientRect();
+    const imgRect = modalImg.getBoundingClientRect();
+    
+    const maxX = (imgRect.width * currentZoom - containerRect.width) / 2;
+    const maxY = (imgRect.height * currentZoom - containerRect.height) / 2;
+    
+    translateX = Math.min(Math.max(translateX, -maxX), maxX);
+    translateY = Math.min(Math.max(translateY, -maxY), maxY);
+    
+    applyZoom();
+}
+
+function stopPan() {
+    isPanning = false;
+    if (currentZoom > 1) {
+        modalImg.style.cursor = 'grab';
+    }
+}
+
+// Mouse wheel zoom
+function wheelZoom(e) {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+        zoomIn();
+    } else {
+        zoomOut();
+    }
+}
+
+// Touch events for mobile
+function touchStart(e) {
+    if (e.touches.length === 1 && currentZoom > 1) {
+        e.preventDefault();
+        isPanning = true;
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+    }
+}
+
+function touchMove(e) {
+    if (!isPanning || currentZoom <= 1) return;
+    e.preventDefault();
+    translateX = e.touches[0].clientX - startX;
+    translateY = e.touches[0].clientY - startY;
+    applyZoom();
+}
+
+// Add event listeners
+modalImg.addEventListener('mousedown', startPan);
+window.addEventListener('mousemove', pan);
+window.addEventListener('mouseup', stopPan);
+modalImg.addEventListener('wheel', wheelZoom);
+modalImg.addEventListener('touchstart', touchStart);
+modalImg.addEventListener('touchmove', touchMove);
+modalImg.addEventListener('touchend', stopPan);
+
+// Close modal when clicking outside
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// Close with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+    }
+});
+
+// Auto hide success message
+setTimeout(function() {
+    const msg = document.querySelector('.success-message');
+    if(msg) {
+        msg.style.display = 'none';
+    }
+}, 3000);
+
+// Add to Cart AJAX functionality
+document.getElementById('addToCartBtn')?.addEventListener('click', function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    
+    // Show loading state
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    btn.disabled = true;
+    
+    // Get CSRF token
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    
+    fetch('{% url "add_to_cart_ajax" product.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success toast
+            showToast(data.message);
+            
+            // Update cart count in header
+            updateCartCount(data.cart_count);
+        } else {
+            showToast('Error adding to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error adding to cart', 'error');
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+});
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('cartToast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    toastMessage.innerHTML = message;
+    
+    if (type === 'error') {
+        toast.style.background = '#ef4444';
+    } else {
+        toast.style.background = '#10b981';
+    }
+    
+    toast.style.display = 'block';
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            toast.style.display = 'none';
+            toast.style.opacity = '1';
+            if (type === 'error') {
+                toast.style.background = '#10b981';
+            }
+        }, 500);
+    }, 3000);
+}
+
+// Update cart count in header
+function updateCartCount(count) {
+    const cartCountElement = document.getElementById('cartCount');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+        if (count > 0) {
+            cartCountElement.style.display = 'inline-block';
+        }
+    }
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,482 @@
+{% extends 'pipes/base.html' %}
+{% load static %}
+
+{% block title %}Our Products - SP AUTO PARTS{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Lightbox Modal - Working Version */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        cursor: pointer;
+    }
+
+    .image-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        margin: auto;
+        display: block;
+    }
+
+    .modal-content img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 10000;
+    }
+
+    .close-modal:hover {
+        color: #f59e0b;
+    }
+
+    /* Page Header */
+    .page-header {
+        text-align: center;
+        padding: 60px 0 30px;
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        margin-top: -80px;
+        padding-top: 140px;
+    }
+
+    .page-header h1 {
+        font-size: 42px;
+        margin-bottom: 15px;
+    }
+
+    /* Category Filter */
+    .category-filter {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin: 30px auto;
+    }
+
+    .filter-title {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .category-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 40px;
+        color: #1e293b;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .category-btn i {
+        color: #2563eb;
+    }
+
+    .category-btn:hover, .category-btn.active {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: white;
+    }
+
+    .category-btn:hover i, .category-btn.active i {
+        color: white;
+    }
+
+    /* Product Type Filter */
+    .type-filter {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .type-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .type-btn {
+        padding: 6px 18px;
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 30px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+
+    .type-btn:hover, .type-btn.active {
+        background: #f59e0b;
+        border-color: #f59e0b;
+        color: white;
+    }
+
+    /* Products Grid */
+    .products-section {
+        padding: 20px 0 60px;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        padding: 20px 0;
+    }
+
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Image Container with Working Click */
+    .product-img {
+        height: 240px;
+        width: 100%;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 20px;
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+
+    .product-img:hover img {
+        transform: scale(1.05);
+    }
+
+    .product-img .zoom-icon {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 5px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .product-img:hover .zoom-icon {
+        opacity: 1;
+    }
+
+    /* No Image */
+    .no-image {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: pointer;
+    }
+
+    .no-image i {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    /* Product Info */
+    .product-info {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-category {
+        display: inline-block;
+        background: #e6f0ff;
+        color: #2563eb;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        align-self: flex-start;
+    }
+
+    .product-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 6px;
+    }
+
+    .part-number {
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .product-type-badge {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+
+    .price {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 15px 0;
+    }
+
+    .btn {
+        display: block;
+        background: #2563eb;
+        color: white;
+        text-align: center;
+        padding: 12px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s;
+        margin-top: auto;
+    }
+
+    .btn:hover {
+        background: #1e40af;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 60px;
+        grid-column: 1/-1;
+        background: white;
+        border-radius: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        .product-img {
+            height: 200px;
+        }
+        .close-modal {
+            top: 10px;
+            right: 20px;
+            font-size: 35px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Image Modal/Lightbox -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Product Image">
+    </div>
+</div>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Our Products</h1>
+        <p>High-quality automotive components for leading brands</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="category-filter">
+        <div class="filter-title">
+            <i class="fas fa-filter"></i> Filter by Brand
+        </div>
+        
+        <div class="filter-buttons">
+            <a href="{% url 'products' %}" class="category-btn {% if not selected_category %}active{% endif %}">
+                <i class="fas fa-th-large"></i> All Brands
+            </a>
+            {% for category in categories %}
+            <a href="{% url 'products' %}?category={{ category.slug }}" class="category-btn {% if selected_category == category.slug %}active{% endif %}">
+                <i class="fas {{ category.icon|default:'fa-tag' }}"></i> {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="type-filter">
+            <div class="type-buttons">
+                <a href="{% url 'products' %}{% if selected_category %}?category={{ selected_category }}{% endif %}" class="type-btn {% if not selected_type %}active{% endif %}">All Types</a>
+                <a href="{% url 'products' %}?{% if selected_category %}category={{ selected_category }}&{% endif %}type=nylon_tubes" class="type-btn {% if selected_type == 'nylon_tubes' %}active{% endif %}">Nylon Tubes</a>
+                <a href="{% url 'products' %}?{% if selected_category %}category={{ selected_category }}&{% endif %}type=hoses" class="type-btn {% if selected_type == 'hoses' %}active{% endif %}">Hoses</a>
+                <a href="{% url 'products' %}?{% if selected_category %}category={{ selected_category }}&{% endif %}type=assemblies" class="type-btn {% if selected_type == 'assemblies' %}active{% endif %}">Assemblies</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="products-section">
+    <div class="container">
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-img" onclick="openModal('{{ product.image.url }}', '{{ product.name }}')">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <div class="zoom-icon">
+                            <i class="fas fa-search-plus"></i> Zoom
+                        </div>
+                    {% else %}
+                        <div class="no-image" onclick="event.stopPropagation(); alert('No image available for this product')">
+                            <i class="fas fa-image"></i>
+                            <span>No Image</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    {% if product.category %}
+                    <span class="product-category">
+                        <i class="fas {{ product.category.icon|default:'fa-tag' }}"></i> {{ product.category.name }}
+                    </span>
+                    {% endif %}
+                    
+                    <h3>{{ product.name }}</h3>
+                    
+                    {% if product.part_number %}
+                    <p class="part-number">
+                        <i class="fas fa-barcode"></i> Part No: {{ product.part_number }}
+                    </p>
+                    {% endif %}
+                    
+                    <span class="product-type-badge">
+                        <i class="fas fa-tag"></i> {{ product.get_product_type_display }}
+                    </span>
+                    
+                    
+                    
+                    <a href="{% url 'product_detail' product.id %}" class="btn">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-results">
+                <i class="fas fa-box-open" style="font-size: 48px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                <h3>No products found</h3>
+                <p>Try selecting a different category or type.</p>
+                <a href="{% url 'products' %}" class="btn" style="display: inline-block; padding: 10px 25px;">Clear Filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script>
+// Working Modal/Lightbox Functions
+function openModal(imageUrl, productName) {
+    if (!imageUrl || imageUrl === '' || imageUrl === 'None') {
+        alert('No image available for this product');
+        return;
+    }
+    
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    
+    modalImage.src = imageUrl;
+    modalImage.alt = productName;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// Prevent event bubbling
+document.getElementById('imageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+document.querySelector('.close-modal').addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeModal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends 'pipes/base.html' %}
+{% load static %}
+
+{% block title %}Cart - SP AUTO PARTS{% endblock %}
+
+{% block content %}
+
+<style>
+.cart-page{
+    padding:120px 0 60px;
+    background:#f1f5f9;
+    min-height:100vh;
+}
+
+.cart-container{
+    max-width:1100px;
+    margin:auto;
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+.cart-title{
+    font-size:38px;
+    font-weight:700;
+    margin-bottom:30px;
+    text-align:center;
+    color:#111827;
+}
+
+.quotation-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+.quotation-table th{
+    background:#2563eb;
+    color:white;
+    padding:15px;
+    text-align:center;
+    border:1px solid #d1d5db;
+}
+
+.quotation-table td{
+    border:1px solid #d1d5db;
+    padding:15px;
+    text-align:center;
+    vertical-align:middle;
+}
+
+.table-img{
+    width:80px;
+    height:80px;
+    object-fit:contain;
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:5px;
+}
+
+.cart-price{
+    color:#16a34a;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.remove-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.remove-btn:hover{
+    background:#dc2626;
+}
+
+.total-section{
+    margin-top:40px;
+    text-align:right;
+}
+
+.total-section h2{
+    font-size:32px;
+    margin-bottom:20px;
+    color:#111827;
+}
+
+.checkout-btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:15px 25px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.checkout-btn:hover{
+    background:#1d4ed8;
+}
+
+.form-section{
+    margin-top:40px;
+    padding:30px;
+    background:#f8fafc;
+    border-radius:15px;
+}
+
+.form-section h2{
+    margin-bottom:20px;
+    color:#111827;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+    padding:15px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-size:16px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    outline:none;
+    border-color:#2563eb;
+}
+
+.empty-cart{
+    text-align:center;
+    padding:60px;
+}
+
+.empty-cart h2{
+    color:#64748b;
+    margin-bottom:20px;
+}
+
+.continue-shopping{
+    display:inline-block;
+    background:#2563eb;
+    color:white;
+    padding:12px 25px;
+    border-radius:10px;
+    text-decoration:none;
+    margin-top:15px;
+}
+
+@media(max-width:768px){
+    .quotation-table{
+        font-size:12px;
+    }
+    .table-img{
+        width:50px;
+        height:50px;
+    }
+    .cart-title{
+        font-size:28px;
+    }
+}
+</style>
+
+<section class="cart-page">
+    <div class="container">
+        <div class="cart-container">
+            <h1 class="cart-title">
+                <i class="fas fa-shopping-cart"></i> Shopping Cart
+            </h1>
+
+            {% if cart_items %}
+            <table class="quotation-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Part Number</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr class="cart-item" data-product-id="{{ item.product.id }}">
+                        <td>
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="table-img" alt="{{ item.product.name }}">
+                            {% else %}
+                            <img src="{% static 'images/no-image.png' %}" class="table-img" alt="No Image">
+                            {% endif %}
+                        </td>
+                        <td>{{ item.product.part_number|default:"N/A" }}</td>
+                        <td class="cart-price">₹ {{ item.product.price|default:"0" }}</td>
+                        <td>
+                            <input type="number" value="{{ item.quantity }}" min="1" 
+                                   style="width:60px; padding:8px; text-align:center; border:1px solid #ddd; border-radius:5px;"
+                                   onchange="updateCartItem({{ item.product.id }}, this.value)">
+                        </td>
+                        <td>₹ {{ item.subtotal|floatformat:2 }}</td>
+                        <td>
+                            <button class="remove-btn" onclick="removeCartItem({{ item.product.id }})">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                <h2>Total: ₹ {{ total|floatformat:2 }}</h2>
+            </div>
+
+            <div class="form-section">
+                <h2>Request Quotation</h2>
+                <form method="POST" action="{% url 'quotation_request' %}" id="quotationForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Your Name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Your Email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" name="phone" placeholder="Phone Number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" name="company" placeholder="Company Name (Optional)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Additional Message" rows="4"></textarea>
+                    </div>
+                    
+                    <input type="hidden" name="product_ids" id="productIdsInput">
+                    
+                    <button type="submit" class="checkout-btn" onclick="prepareProductIds()">
+                        <i class="fas fa-paper-plane"></i> Send Quotation Request
+                    </button>
+                </form>
+            </div>
+
+            {% else %}
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart" style="font-size: 60px; color: #cbd5e1;"></i>
+                <h2>Your cart is empty</h2>
+                <p>Add products to your cart from the products page.</p>
+                <a href="{% url 'products' %}" class="continue-shopping">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+
+// Function 1 - Prepare product IDs
+function prepareProductIds() {
+
+    let productIds = [];
+
+    document.querySelectorAll(".cart-item").forEach(function(row){
+
+        let productId = row.dataset.productId;
+
+        let quantityInput = row.querySelector('input[type="number"]');
+
+        let quantity = quantityInput ? quantityInput.value : 1;
+
+        productIds.push({
+            id: parseInt(productId),
+            quantity: parseInt(quantity)
+        });
+
+    });
+
+    document.getElementById("productIdsInput").value =
+        JSON.stringify(productIds);
+
+    console.log(productIds);
+
+    return true;
+}
+
+
+// Function 2 - Update quantity
+function updateCartItem(productId, quantity) {
+
+    fetch(`/update-cart/${productId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        location.reload();
+    });
+
+}
+
+
+// Function 3 - Remove item
+function removeCartItem(productId) {
+
+    if(confirm("Remove this item from cart?")) {
+
+        fetch(`/remove-from-cart/${productId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        });
+
+    }
+
+}
+
+
+// Function 4 - Form submit
+document.getElementById("quotationForm").addEventListener("submit", function(e){
+
+    prepareProductIds();
+
+});
+
+</script>
+{% endblock %}

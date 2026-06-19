@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | SP Auto Parts Solution{% endblock %}
+
+{% block branding %}
+<h1 id="site-name" style="font-family: Arial, sans-serif;">
+    <a href="{% url 'admin:index' %}" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+        <span style="background: #f59e0b; padding: 8px 12px; border-radius: 6px; font-weight: bold;">SP</span>
+        <span>Auto Parts Solution - Admin</span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
