@@ -333,7 +333,9 @@ def quotation_request(request):
                     img_html = f'''
                     <div style="text-align: center;">
                         <a href="{p['image_url']}" target="_blank">
-                            <img src="cid:image_{p['id']}" width="70">
+                            <a href="{p['image_url']}">
+                                View Product Image
+                            </a>
                         </a>
                         <br>
                         <a href="{p['image_url']}" target="_blank">
@@ -414,20 +416,20 @@ def quotation_request(request):
             msg.attach_alternative(html_content, "text/html")
             
             # Attach images with Content-ID for inline display
-            for p in products_data:
-                if p['image_path'] and os.path.exists(p['image_path']):
-                    try:
-                        with open(p['image_path'], 'rb') as f:
-                            img_data = f.read()
-                            img = MIMEImage(img_data)
-                            img.add_header('Content-ID', f'<image_{p["id"]}>')
-                            img.add_header('Content-Disposition', 'inline', filename=p['image_name'])
-                            msg.attach(img)
-                            print(f"Attached image for: {p['part_number']}")              
-                    except Exception as e:
-                        print(f"Error attaching image for {p['part_number']}: {e}")
+            # for p in products_data:
+            #     if p['image_path'] and os.path.exists(p['image_path']):
+            #         try:
+            #             with open(p['image_path'], 'rb') as f:
+            #                 img_data = f.read()
+            #                 img = MIMEImage(img_data)
+            #                 img.add_header('Content-ID', f'<image_{p["id"]}>')
+            #                 img.add_header('Content-Disposition', 'inline', filename=p['image_name'])
+            #                 msg.attach(img)
+            #                 print(f"Attached image for: {p['part_number']}")              
+            #         except Exception as e:
+            #             print(f"Error attaching image for {p['part_number']}: {e}")
             
-            msg.send()
+            msg.send(fail_silently=True)
             
             # Clear cart
             cart_id = request.session.get('cart_id')
