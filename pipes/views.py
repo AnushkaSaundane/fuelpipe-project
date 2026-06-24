@@ -506,3 +506,16 @@ def get_cart_count(request):
         except Cart.DoesNotExist:
             pass
     return JsonResponse({'count': count})
+
+from django.core.mail import send_mail
+from django.http import HttpResponse
+
+def test_email(request):
+    send_mail(
+        'Test Mail',
+        'Hello from Django',
+        'spautopartssolutions@gmail.com',
+        ['spautopartssolutions@gmail.com'],
+        fail_silently=False,
+    )
+    return HttpResponse("Mail Sent")

@@ -16,4 +16,5 @@ urlpatterns = [
     path('remove-from-cart/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('add-to-cart-ajax/<int:product_id>/', views.add_to_cart_ajax, name='add_to_cart_ajax'),
     path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
+    path('test-email/', views.test_email, name='test_email'),
 ]
