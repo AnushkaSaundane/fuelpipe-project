@@ -429,8 +429,9 @@ def quotation_request(request):
             #         except Exception as e:
             #             print(f"Error attaching image for {p['part_number']}: {e}")
             
-            msg.send(fail_silently=True)
-            
+            sent = msg.send()
+
+            print("EMAIL SENT:", sent)            
             # Clear cart
             cart_id = request.session.get('cart_id')
             if cart_id:
