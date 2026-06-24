@@ -306,8 +306,8 @@ def quotation_request(request):
                         'subtotal': (product.price or 0) * item['quantity'],
                         'image_path': product.image.path if product.image else None,
                         'image_name': os.path.basename(product.image.name) if product.image else None,
-                        'image_url': 'http://localhost:8000' + product.image.url
-                    })
+                        'image_url': request.build_absolute_uri(product.image.url)                    
+                        })
                 except Product.DoesNotExist:
                     pass
         
