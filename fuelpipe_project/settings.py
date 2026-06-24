@@ -104,7 +104,7 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = 'spautopartssolutions@gmail.com'
 
-EMAIL_HOST_PASSWORD = 'rqhl urxq txcg dzsg'
+EMAIL_HOST_PASSWORD = 'otri dmpg kfwd zqna'
 
 EMAIL_TIMEOUT = 10
 
