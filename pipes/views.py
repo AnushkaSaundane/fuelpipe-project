@@ -407,13 +407,30 @@ def quotation_request(request):
         text_content = f"New Quotation Request from {name}\n\nCustomer Details:\nName: {name}\nEmail: {email}\nPhone: {phone}"
         
         try:
+            print("Preparing quotation email...")
+            print("Customer:", name)
+            print("Email:", email)
+            print("Products:", products_data)
+
             msg = EmailMultiAlternatives(
                 subject=f"Quotation Request from {name} - SP Auto Parts",
                 body=text_content,
                 from_email=settings.EMAIL_HOST_USER,
                 to=["spautopartssolutions@gmail.com"]
             )
+
             msg.attach_alternative(html_content, "text/html")
+
+            print("About to send email...")
+
+            sent = msg.send()
+
+            print("EMAIL SENT:", sent)
+            print("Quotation email sent successfully!")
+
+        except Exception as e:
+            print("EMAIL ERROR:", str(e))
+            raise
             
             # Attach images with Content-ID for inline display
             # for p in products_data:
@@ -429,21 +446,7 @@ def quotation_request(request):
             #         except Exception as e:
             #             print(f"Error attaching image for {p['part_number']}: {e}")
             
-            sent = msg.send()
-
-            print("EMAIL SENT:", sent)            
-            # Clear cart
-            cart_id = request.session.get('cart_id')
-            if cart_id:
-                Cart.objects.filter(id=cart_id).delete()
-                if 'cart_id' in request.session:
-                    del request.session['cart_id']
             
-            messages.success(request, 'Quotation request sent successfully!')
-            
-        except Exception as e:
-            print(f"Email error: {e}")
-            messages.error(request, f'Error sending request: {str(e)}')
         
         return redirect('cart')
     
