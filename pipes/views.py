@@ -328,7 +328,7 @@ def quotation_request(request):
                 <tbody>
             """
             for p in products_data:
-                if p['image_path']:
+                if p['image_url']:
                     # Clickable image that opens in new tab
                     img_html = f'''
                     <div style="text-align: center;">
@@ -412,22 +412,23 @@ def quotation_request(request):
             print("Email:", email)
             print("Products:", products_data)
 
-            msg = EmailMultiAlternatives(
-                subject=f"Quotation Request from {name} - SP Auto Parts",
-                body=text_content,
+            from django.core.mail import send_mail
+
+            sent = send_mail(
+                subject=f"Quotation Request from {name}",
+                message=f"""
+            Name: {name}
+            Email: {email}
+            Phone: {phone}
+            Company: {company}
+            Message: {message}
+            """,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["spautopartssolutions@gmail.com"]
+                recipient_list=["spautopartssolutions@gmail.com"],
+                fail_silently=False,
             )
 
-            msg.attach_alternative(
-            f"""
-            <h2>Quotation Request</h2>
-            <p>Name: {name}</p>
-            <p>Email: {email}</p>
-            <p>Phone: {phone}</p>
-            """,
-            "text/html"
-)
+            print("EMAIL SENT:", sent)
             print("About to send email...")
             print("EMAIL_HOST:", settings.EMAIL_HOST)
             print("EMAIL_PORT:", settings.EMAIL_PORT)
