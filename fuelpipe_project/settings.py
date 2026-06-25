@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-6$_x!$fj0cebu$(it7)+a@(yo@!n-16lp(dczsazy%_^w)89rm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*',
+                 'fuelpipe-project-4.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',  # For FlareGUI
@@ -33,6 +34,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.loca.lt',            # For localtunnel
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    
 ]
 
 import os
