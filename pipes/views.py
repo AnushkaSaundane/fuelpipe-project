@@ -419,11 +419,26 @@ def quotation_request(request):
                 to=["spautopartssolutions@gmail.com"]
             )
 
-            msg.attach_alternative(html_content, "text/html")
-
+            msg.attach_alternative(
+            f"""
+            <h2>Quotation Request</h2>
+            <p>Name: {name}</p>
+            <p>Email: {email}</p>
+            <p>Phone: {phone}</p>
+            """,
+            "text/html"
+)
             print("About to send email...")
-
-            sent = msg.send()
+            print("EMAIL_HOST:", settings.EMAIL_HOST)
+            print("EMAIL_PORT:", settings.EMAIL_PORT)
+            print("EMAIL_USER:", settings.EMAIL_HOST_USER)
+            print("SENDING MAIL...")
+            try:
+                sent = msg.send()
+                print("EMAIL SENT:", sent)
+            except Exception as e:
+                print("EMAIL ERROR:", str(e))
+                return HttpResponse("MAIL ERROR: " + str(e))
 
             print("EMAIL SENT:", sent)
             print("Quotation email sent successfully!")
