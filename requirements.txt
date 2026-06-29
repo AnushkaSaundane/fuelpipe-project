@@ -93,7 +93,6 @@ prompt_toolkit==3.0.51
 psutil==7.0.0
 pure_eval==0.2.3
 pycparser==2.23
-pygame==2.6.1
 Pygments==2.19.2
 pyparsing==3.2.3
 PyPDF2==3.0.1
