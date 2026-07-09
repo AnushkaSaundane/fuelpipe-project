@@ -407,16 +407,21 @@ def quotation_request(request):
         text_content = f"New Quotation Request from {name}\n\nCustomer Details:\nName: {name}\nEmail: {email}\nPhone: {phone}"
         
         try:
-            msg = EmailMultiAlternatives(
+            print("Preparing quotation email...")
+
+            sent = send_mail(
                 subject=f"Quotation Request from {name}",
-                body=text_content,
+                message=f"""
+        Name: {name}
+        Email: {email}
+        Phone: {phone}
+        Company: {company}
+        Message: {message}
+                """,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["spautopartssolutions@gmail.com"],
+                recipient_list=["spautopartssolutions@gmail.com"],
+                fail_silently=False,
             )
-
-            msg.attach_alternative(html_content, "text/html")
-
-            sent = msg.send()
 
             print("EMAIL SENT:", sent)
             messages.success(request, "Quotation request sent successfully!")
