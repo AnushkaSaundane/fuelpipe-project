@@ -407,46 +407,25 @@ def quotation_request(request):
         text_content = f"New Quotation Request from {name}\n\nCustomer Details:\nName: {name}\nEmail: {email}\nPhone: {phone}"
         
         try:
-            print("Preparing quotation email...")
-            print("Customer:", name)
-            print("Email:", email)
-            print("Products:", products_data)
-
-            from django.core.mail import send_mail
-
-            sent = send_mail(
+            msg = EmailMultiAlternatives(
                 subject=f"Quotation Request from {name}",
-                message=f"""
-            Name: {name}
-            Email: {email}
-            Phone: {phone}
-            Company: {company}
-            Message: {message}
-            """,
+                body=text_content,
                 from_email=settings.EMAIL_HOST_USER,
-                recipient_list=["spautopartssolutions@gmail.com"],
-                fail_silently=False,
+                to=["spautopartssolutions@gmail.com"],
             )
 
-            print("EMAIL SENT:", sent)
-            print("About to send email...")
-            print("EMAIL_HOST:", settings.EMAIL_HOST)
-            print("EMAIL_PORT:", settings.EMAIL_PORT)
-            print("EMAIL_USER:", settings.EMAIL_HOST_USER)
-            print("SENDING MAIL...")
-            try:
-                sent = msg.send()
-                print("EMAIL SENT:", sent)
-            except Exception as e:
-                print("EMAIL ERROR:", str(e))
-                return HttpResponse("MAIL ERROR: " + str(e))
+            msg.attach_alternative(html_content, "text/html")
+
+            sent = msg.send()
 
             print("EMAIL SENT:", sent)
-            print("Quotation email sent successfully!")
+            messages.success(request, "Quotation request sent successfully!")
 
         except Exception as e:
             print("EMAIL ERROR:", str(e))
-            raise
+            messages.error(request, f"Mail Error: {e}")
+
+        return redirect("cart")
             
             # Attach images with Content-ID for inline display
             # for p in products_data:
