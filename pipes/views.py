@@ -1,20 +1,24 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.contrib import messages
-from django.db.models import Q
-from .models import Product, ContactMessage, Category
-from django.contrib.admin.views.decorators import staff_member_required
-from .models import Product, ContactMessage, Customer, CompanyImage
-from django.shortcuts import render, redirect
+import os
+import json
+import base64
+import mimetypes
+from email.mime.image import MIMEImage
+
 import pandas as pd
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
-from .models import Cart,CartItem
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Q
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from .models import Product, Category, QuotationRequest
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+from .models import Product, ContactMessage, Category, Customer, CompanyImage, Cart, CartItem, QuotationRequest
 
 def search_price(request):
     query = request.GET.get('q', '')
@@ -124,7 +128,7 @@ def contact(request):
     context = {
         'product_name': product_name,
     }
-    return render(request, 'pipes/contact.html')
+    return render(request, 'pipes/contact.html', context)
 
 @staff_member_required
 def custom_admin_dashboard(request):
@@ -197,10 +201,6 @@ def upload_products_excel(request):
 
 
 # ADD TO CART
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-
 @csrf_exempt
 @require_POST
 def add_to_cart_ajax(request, product_id):
@@ -269,19 +269,6 @@ def cart(request):
         'total': total
     })
 
-from django.core.mail import EmailMultiAlternatives
-import mimetypes
-
-import os
-from django.core.mail import EmailMultiAlternatives
-from django.core.files import File
-from email.mime.image import MIMEImage
-
-import os
-import json
-from django.core.mail import EmailMultiAlternatives
-from email.mime.image import MIMEImage
-
 def quotation_request(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -298,20 +285,26 @@ def quotation_request(request):
                 try:
                     product = Product.objects.get(id=item['id'])
                     
+                    # Get base64 image if exists
+                    image_base64 = None
+                    if product.image and product.image.path and os.path.exists(product.image.path):
+                        with open(product.image.path, 'rb') as img_file:
+                            image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                    
                     products_data.append({
                         'id': item['id'],
+                        'name': product.name,
                         'part_number': product.part_number or 'N/A',
                         'price': product.price or 0,
                         'quantity': item['quantity'],
                         'subtotal': (product.price or 0) * item['quantity'],
-                        'image_path': product.image.path if product.image else None,
-                        'image_name': os.path.basename(product.image.name) if product.image else None,
-                        'image_url': request.build_absolute_uri(product.image.url)                    
-                        })
+                        'image_base64': image_base64,
+                        'image_ext': 'png' if product.image and product.image.path and product.image.path.lower().endswith('.png') else 'jpg'
+                    })
                 except Product.DoesNotExist:
                     pass
         
-        # Build products HTML table with CLICKABLE images
+        # Build products HTML with embedded Base64 images
         products_html = ""
         if products_data:
             products_html = """
@@ -319,6 +312,7 @@ def quotation_request(request):
                 <thead>
                     <tr style="background: #2563eb; color: white;">
                         <th style="padding: 12px;">Image</th>
+                        <th style="padding: 12px;">Product Name</th>
                         <th style="padding: 12px;">Part Number</th>
                         <th style="padding: 12px;">Price</th>
                         <th style="padding: 12px;">Quantity</th>
@@ -328,31 +322,26 @@ def quotation_request(request):
                 <tbody>
             """
             for p in products_data:
-                if p['image_url']:
-                    # Clickable image that opens in new tab
+                if p['image_base64']:
+                    img_src = f'data:image/{p["image_ext"]};base64,{p["image_base64"]}'
                     img_html = f'''
                     <div style="text-align: center;">
-                        <a href="{p['image_url']}" target="_blank">
-                            <a href="{p['image_url']}">
-                                View Product Image
-                            </a>
-                        </a>
+                        <img src="{img_src}" width="70" height="70" style="object-fit: cover; border-radius: 8px; border: 1px solid #ddd; padding: 4px;">
                         <br>
-                        <a href="{p['image_url']}" target="_blank">
-                            🔍 Click to enlarge
-                        </a>                    
-                        </div>
+                        <span style="font-size: 10px; color: #666;">Image embedded</span>
+                    </div>
                     '''
                 else:
                     img_html = '<div style="text-align: center;">No Image</div>'
                 
                 products_html += f"""
                     <tr>
-                        <td style="text-align: center; padding: 10px; vertical-align: middle;">{img_html}</td>
-                        <td style="text-align: center; padding: 10px;">{p['part_number']}</td>
-                        <td style="text-align: center; padding: 10px;">₹ {p['price']}</td>
-                        <td style="text-align: center; padding: 10px;">{p['quantity']}</td>
-                        <td style="text-align: center; padding: 10px;">₹ {p['subtotal']:.2f}</td>
+                        <td style="text-align: center; padding: 10px;">{img_html}</td>
+                        <td style="text-align: center;"><strong>{p['name']}</strong></td>
+                        <td style="text-align: center;">{p['part_number']}</td>
+                        <td style="text-align: center;">₹ {p['price']}</td>
+                        <td style="text-align: center;">{p['quantity']}</td>
+                        <td style="text-align: center;">₹ {p['subtotal']:.2f}</td>
                     </tr>
                 """
             products_html += """
@@ -362,7 +351,7 @@ def quotation_request(request):
         else:
             products_html = "<p>No products in cart</p>"
         
-        # Build email HTML with clickable images
+        # Build email HTML with info about images
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -377,9 +366,6 @@ def quotation_request(request):
                 table {{ width: 100%; border-collapse: collapse; }}
                 th, td {{ padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }}
                 th {{ background: #1e293b; color: white; }}
-                a {{ text-decoration: none; }}
-                img {{ transition: transform 0.2s; }}
-                img:hover {{ transform: scale(1.05); }}
             </style>
         </head>
         <body>
@@ -407,57 +393,53 @@ def quotation_request(request):
         text_content = f"New Quotation Request from {name}\n\nCustomer Details:\nName: {name}\nEmail: {email}\nPhone: {phone}"
         
         try:
-            print("Preparing quotation email...")
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY
 
-            sent = send_mail(
-                subject=f"Quotation Request from {name}",
-                message=f"""
-        Name: {name}
-        Email: {email}
-        Phone: {phone}
-        Company: {company}
-        Message: {message}
-                """,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=["spautopartssolutions@gmail.com"],
-                fail_silently=False,
+            api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+                sib_api_v3_sdk.ApiClient(configuration)
             )
 
-            print("EMAIL SENT:", sent)
+            sender = {
+                "name": "SP Auto Parts Solutions",
+                "email": "spautopartssolutions@gmail.com"
+            }
+
+            receiver = [
+                {
+                    "email": "spautopartssolutions@gmail.com",
+                    "name": "SP Auto Parts Solutions"
+                }
+            ]
+
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                sender=sender,
+                to=receiver,
+                subject=f"Quotation Request from {name} - SP Auto Parts",
+                html_content=html_content
+            )
+
+            api_instance.send_transac_email(send_smtp_email)
+
+            # Clear cart
+            cart_id = request.session.get('cart_id')
+            if cart_id:
+                Cart.objects.filter(id=cart_id).delete()
+                if 'cart_id' in request.session:
+                    del request.session['cart_id']
+
             messages.success(request, "Quotation request sent successfully!")
 
-        except Exception as e:
-            print("EMAIL ERROR:", str(e))
-            messages.error(request, f"Mail Error: {e}")
+        except ApiException as e:
+            print("BREVO ERROR:", e)
+            messages.error(request, f"Brevo Error: {e}")
 
-        return redirect("cart")
-            
-            # Attach images with Content-ID for inline display
-            # for p in products_data:
-            #     if p['image_path'] and os.path.exists(p['image_path']):
-            #         try:
-            #             with open(p['image_path'], 'rb') as f:
-            #                 img_data = f.read()
-            #                 img = MIMEImage(img_data)
-            #                 img.add_header('Content-ID', f'<image_{p["id"]}>')
-            #                 img.add_header('Content-Disposition', 'inline', filename=p['image_name'])
-            #                 msg.attach(img)
-            #                 print(f"Attached image for: {p['part_number']}")              
-            #         except Exception as e:
-            #             print(f"Error attaching image for {p['part_number']}: {e}")
-            
-            
+        except Exception as e:
+            print("ERROR:", e)
+            messages.error(request, f"Error: {e}")
         
         return redirect('cart')
     
-    return redirect('cart')
-
-# Add these imports at the top if not already there
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-
-# Add these functions to your views.py
 
 def update_cart(request, product_id):
     """Update cart item quantity"""
@@ -497,8 +479,6 @@ def remove_from_cart(request, product_id):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False})
 
-from django.http import JsonResponse
-
 def get_cart_count(request):
     cart_id = request.session.get('cart_id')
     count = 0
@@ -510,19 +490,27 @@ def get_cart_count(request):
             pass
     return JsonResponse({'count': count})
 
-from django.core.mail import send_mail
-from django.conf import settings
 from django.http import HttpResponse
+import socket
 
 def test_email(request):
     try:
-        result = send_mail(
-            'Test Mail',
-            'Hello from Django',
-            settings.EMAIL_HOST_USER,
-            ['spautopartssolutions@gmail.com'],
-            fail_silently=False,
-        )
-        return HttpResponse(f"Mail Sent: {result}")
+        ip = socket.gethostbyname("smtp.gmail.com")
+        return HttpResponse(f"Gmail resolves to: {ip}")
     except Exception as e:
-        return HttpResponse(f"Error: {str(e)}")
+        return HttpResponse(f"DNS Error: {e}")
+    
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def create_admin(request):
+    if not User.objects.filter(username="admin").exists():
+        User.objects.create_superuser(
+            "admin",
+            "your@email.com",
+            "YourPassword123"
+        )
+        return HttpResponse("Admin created")
+
+    return HttpResponse("Admin already exists")
