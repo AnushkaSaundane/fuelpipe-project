@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-6$_x!$fj0cebu$(it7)+a@(yo@!n-16lp(dczsazy%_^w)89rm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*',
                  'FuelPipeProject.pythonanywhere.com',
@@ -172,5 +172,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-print("DATABASE_URL =", os.environ.get("DATABASE_URL"))
-print("DATABASE ENGINE =", DATABASES["default"]["ENGINE"])
+# print("DATABASE_URL =", os.environ.get("DATABASE_URL"))
+# print("DATABASE ENGINE =", DATABASES["default"]["ENGINE"])
