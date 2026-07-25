@@ -279,29 +279,34 @@ def quotation_request(request):
         product_ids_json = request.POST.get("product_ids")
         
         products_data = []
+
         if product_ids_json:
             product_items = json.loads(product_ids_json)
+
             for item in product_items:
                 try:
-                    product = Product.objects.get(id=item['id'])
-                    
-                    # Get base64 image if exists
-                    image_base64 = None
-                    if product.image and product.image.path and os.path.exists(product.image.path):
-                        with open(product.image.path, 'rb') as img_file:
-                            image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                    
+                    product = Product.objects.get(id=item["id"])
+
+                    # Absolute image URL
+                    image_url = None
+                    if product.image:
+                        try:
+                            image_url = request.build_absolute_uri(product.image.url)
+                        except Exception:
+                            image_url = None
+
                     products_data.append({
-                    'id': item['id'],
-                    'name': product.name,
-                    'part_number': product.part_number or 'N/A',
-                    'price': product.price or 0,
-                    'quantity': item['quantity'],
-                    'subtotal': (product.price or 0) * item['quantity'],
-                    'image_url': image_url,
-                })
+                        "id": product.id,
+                        "name": product.name,
+                        "part_number": product.part_number or "N/A",
+                        "price": float(product.price or 0),
+                        "quantity": int(item["quantity"]),
+                        "subtotal": float(product.price or 0) * int(item["quantity"]),
+                        "image_url": image_url,
+                    })
+
                 except Product.DoesNotExist:
-                    pass
+                    continue
         
         # Build products HTML with embedded Base64 images
         products_html = ""
@@ -320,26 +325,27 @@ def quotation_request(request):
                 <tbody>
             """
             for p in products_data:
-                product = Product.objects.get(id=item['id'])
 
-                image_url = ""
-                if p['image_url']:
-                    img_html = f'''
-                        <img src="{p["image_url"]}"
-                            width="70"
-                            height="70"
-                            style="object-fit:cover;border-radius:8px;border:1px solid #ddd;padding:4px;">
-                    '''
+                if p["image_url"]:
+                    img_html = f"""
+                    <img src="{p['image_url']}"
+                        width="70"
+                        height="70"
+                        style="border:1px solid #ddd;
+                                border-radius:8px;
+                                object-fit:cover;">
+                    """
                 else:
                     img_html = "No Image"
+
                 products_html += f"""
-                    <tr>
-                        <td style="text-align: center; padding: 10px;">{img_html}</td>
-                        <td style="text-align: center;">{p['part_number']}</td>
-                        <td style="text-align: center;">₹ {p['price']}</td>
-                        <td style="text-align: center;">{p['quantity']}</td>
-                        <td style="text-align: center;">₹ {p['subtotal']:.2f}</td>
-                    </tr>
+                <tr>
+                    <td style="text-align:center;">{img_html}</td>
+                    <td style="text-align:center;">{p['part_number']}</td>
+                    <td style="text-align:center;">₹ {p['price']}</td>
+                    <td style="text-align:center;">{p['quantity']}</td>
+                    <td style="text-align:center;">₹ {p['subtotal']:.2f}</td>
+                </tr>
                 """
             products_html += """
                 </tbody>
