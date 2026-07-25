@@ -292,15 +292,14 @@ def quotation_request(request):
                             image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
                     
                     products_data.append({
-                        'id': item['id'],
-                        'name': product.name,
-                        'part_number': product.part_number or 'N/A',
-                        'price': product.price or 0,
-                        'quantity': item['quantity'],
-                        'subtotal': (product.price or 0) * item['quantity'],
-                        'image_base64': image_base64,
-                        'image_ext': 'png' if product.image and product.image.path and product.image.path.lower().endswith('.png') else 'jpg'
-                    })
+                    'id': item['id'],
+                    'name': product.name,
+                    'part_number': product.part_number or 'N/A',
+                    'price': product.price or 0,
+                    'quantity': item['quantity'],
+                    'subtotal': (product.price or 0) * item['quantity'],
+                    'image_url': image_url,
+                })
                 except Product.DoesNotExist:
                     pass
         
@@ -312,7 +311,6 @@ def quotation_request(request):
                 <thead>
                     <tr style="background: #2563eb; color: white;">
                         <th style="padding: 12px;">Image</th>
-                        <th style="padding: 12px;">Product Name</th>
                         <th style="padding: 12px;">Part Number</th>
                         <th style="padding: 12px;">Price</th>
                         <th style="padding: 12px;">Quantity</th>
@@ -322,22 +320,21 @@ def quotation_request(request):
                 <tbody>
             """
             for p in products_data:
-                if p['image_base64']:
-                    img_src = f'data:image/{p["image_ext"]};base64,{p["image_base64"]}'
+                product = Product.objects.get(id=item['id'])
+
+                image_url = ""
+                if p['image_url']:
                     img_html = f'''
-                    <div style="text-align: center;">
-                        <img src="{img_src}" width="70" height="70" style="object-fit: cover; border-radius: 8px; border: 1px solid #ddd; padding: 4px;">
-                        <br>
-                        <span style="font-size: 10px; color: #666;">Image embedded</span>
-                    </div>
+                        <img src="{p["image_url"]}"
+                            width="70"
+                            height="70"
+                            style="object-fit:cover;border-radius:8px;border:1px solid #ddd;padding:4px;">
                     '''
                 else:
-                    img_html = '<div style="text-align: center;">No Image</div>'
-                
+                    img_html = "No Image"
                 products_html += f"""
                     <tr>
                         <td style="text-align: center; padding: 10px;">{img_html}</td>
-                        <td style="text-align: center;"><strong>{p['name']}</strong></td>
                         <td style="text-align: center;">{p['part_number']}</td>
                         <td style="text-align: center;">₹ {p['price']}</td>
                         <td style="text-align: center;">{p['quantity']}</td>
