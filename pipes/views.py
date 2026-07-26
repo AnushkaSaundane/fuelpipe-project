@@ -418,6 +418,10 @@ def quotation_request(request):
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
                 sender=sender,
                 to=receiver,
+                reply_to={
+                    "email": email,
+                    "name": name
+                },
                 subject=f"Quotation Request from {name} - SP Auto Parts",
                 html_content=html_content
             )
