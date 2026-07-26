@@ -426,7 +426,7 @@
                             <i class="fas fa-eye"></i> View Details
                         </a>
 
-                        <form action="{% url 'add_to_cart' product.id %}" method="post" class="flex-fill">
+                        <form action="{% url 'add_to_cart_ajax' product.id %}" method="post" class="flex-fill">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
