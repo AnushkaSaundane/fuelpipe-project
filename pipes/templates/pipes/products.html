@@ -420,9 +420,19 @@
                     
                     
                     
-                    <a href="{% url 'product_detail' product.id %}" class="btn">
-                        <i class="fas fa-eye"></i> View Details
-                    </a>
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'product_detail' product.id %}"
+                        class="btn btn-outline-primary flex-fill">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+
+                        <form action="{% url 'add_to_cart' product.id %}" method="post" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             {% empty %}
