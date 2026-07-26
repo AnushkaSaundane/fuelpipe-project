@@ -18,4 +18,5 @@ urlpatterns = [
     path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
     path('test-email/', views.test_email, name='test_email'),
     path("create-admin/", views.create_admin),
+    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
 ]

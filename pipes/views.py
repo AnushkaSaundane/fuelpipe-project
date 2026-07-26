@@ -521,3 +521,35 @@ def create_admin(request):
         return HttpResponse("Admin created")
 
     return HttpResponse("Admin already exists")
+
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    cart_id = request.session.get('cart_id')
+
+    if cart_id:
+        try:
+            cart = Cart.objects.get(id=cart_id)
+        except Cart.DoesNotExist:
+            cart = Cart.objects.create()
+            request.session['cart_id'] = cart.id
+    else:
+        cart = Cart.objects.create()
+        request.session['cart_id'] = cart.id
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product,
+        defaults={'quantity': 1}
+    )
+
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+
+    messages.success(request, f"{product.name} added to cart!")
+
+    return redirect('products')
