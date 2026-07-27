@@ -553,3 +553,79 @@ def add_to_cart(request, product_id):
     messages.success(request, f"{product.name} added to cart!")
 
     return redirect('products')
+
+from .models import ProductRequest
+from django.core.mail import EmailMessage
+
+def request_part(request):
+
+    if request.method == "POST":
+
+        part = ProductRequest.objects.create(
+            name=request.POST.get("name"),
+            email=request.POST.get("email"),
+            phone=request.POST.get("phone"),
+            company=request.POST.get("company"),
+
+            vehicle_company=request.POST.get("vehicle_company"),
+            vehicle_model=request.POST.get("vehicle_model"),
+
+            part_name=request.POST.get("part_name"),
+            part_number=request.POST.get("part_number"),
+
+            quantity=request.POST.get("quantity"),
+            description=request.POST.get("description"),
+
+            image=request.FILES.get("image")
+        )
+
+        html = f"""
+        <h2>New Product Request</h2>
+
+        <p><b>Name:</b> {part.name}</p>
+
+        <p><b>Email:</b> {part.email}</p>
+
+        <p><b>Phone:</b> {part.phone}</p>
+
+        <p><b>Company:</b> {part.company}</p>
+
+        <hr>
+
+        <p><b>Vehicle Company:</b> {part.vehicle_company}</p>
+
+        <p><b>Vehicle Model:</b> {part.vehicle_model}</p>
+
+        <p><b>Part Name:</b> {part.part_name}</p>
+
+        <p><b>Part Number:</b> {part.part_number}</p>
+
+        <p><b>Quantity:</b> {part.quantity}</p>
+
+        <p><b>Description:</b></p>
+
+        <p>{part.description}</p>
+        """
+
+        email = EmailMessage(
+            subject="New Product Request",
+            body=html,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=["spautopartssolutions@gmail.com"],
+        )
+
+        email.content_subtype = "html"
+
+        if part.image:
+            email.attach_file(part.image.path)
+
+        email.send()
+
+        messages.success(
+            request,
+            "Your request has been submitted successfully. We will contact you soon."
+        )
+
+        return redirect("request_part")
+
+    return render(request, "pipes/request_part.html")

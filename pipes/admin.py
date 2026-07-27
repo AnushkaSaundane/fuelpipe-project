@@ -77,3 +77,23 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_filter = ['is_read', 'created_at']
     readonly_fields = ['name', 'email', 'phone', 'subject', 'message', 'created_at']
 
+from .models import ProductRequest
+
+@admin.register(ProductRequest)
+class ProductRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        'part_name',
+        'vehicle_company',
+        'vehicle_model',
+        'name',
+        'phone',
+        'created_at',
+    )
+
+    search_fields = (
+        'part_name',
+        'part_number',
+        'vehicle_model',
+        'name',
+        'phone',
+    )
