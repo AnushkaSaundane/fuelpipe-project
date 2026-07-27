@@ -194,26 +194,20 @@ class QuotationItem(models.Model):
     def __str__(self):
         return self.product.name
 
-class ProductRequest(models.Model):
-    name = models.CharField(max_length=100)
+class PartRequest(models.Model):
+    customer_name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
 
-    company = models.CharField(max_length=100, blank=True)
-
-    vehicle_company = models.CharField(max_length=100)
-    vehicle_model = models.CharField(max_length=100)
-
+    vehicle_name = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
     part_number = models.CharField(max_length=100, blank=True)
 
-    quantity = models.PositiveIntegerField(default=1)
-
     description = models.TextField(blank=True)
 
-    image = models.ImageField(upload_to='requested_parts/', blank=True, null=True)
+    image = models.ImageField(upload_to='requested_parts/')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.part_name} - {self.name}"
+        return f"{self.customer_name} - {self.part_name}"

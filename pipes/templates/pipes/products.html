@@ -382,6 +382,23 @@
 </div>
 
 <section class="products-section">
+    <div class="text-center mt-5 p-5 bg-light rounded">
+
+    <h3>Can't Find Your Product?</h3>
+
+    <p>
+    Looking for a fuel pipe that's not listed?
+    Send us the details and upload an image.
+    We'll help you find it.
+    </p>
+
+    <a href="{% url 'request_part' %}" class="btn btn-warning btn-lg">
+
+    Request a Part
+
+    </a>
+
+    </div>
     <div class="container">
         <div class="products-grid">
             {% for product in products %}
@@ -444,23 +461,6 @@
             </div>
             {% endfor %}
         </div>
-    </div>
-    <div class="text-center mt-5 p-5 bg-light rounded">
-
-    <h3>Can't Find Your Product?</h3>
-
-    <p>
-    Looking for a fuel pipe that's not listed?
-    Send us the details and upload an image.
-    We'll help you find it.
-    </p>
-
-    <a href="{% url 'request_part' %}" class="btn btn-warning btn-lg">
-
-    Request a Part
-
-    </a>
-
     </div>
 </section>
 

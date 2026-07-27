@@ -554,78 +554,71 @@ def add_to_cart(request, product_id):
 
     return redirect('products')
 
-from .models import ProductRequest
-from django.core.mail import EmailMessage
+from .forms import PartRequestForm
+from .models import PartRequest
 
+from django.core.mail import EmailMessage
 def request_part(request):
 
     if request.method == "POST":
 
-        part = ProductRequest.objects.create(
-            name=request.POST.get("name"),
-            email=request.POST.get("email"),
-            phone=request.POST.get("phone"),
-            company=request.POST.get("company"),
+        form = PartRequestForm(request.POST, request.FILES)
 
-            vehicle_company=request.POST.get("vehicle_company"),
-            vehicle_model=request.POST.get("vehicle_model"),
+        if form.is_valid():
 
-            part_name=request.POST.get("part_name"),
-            part_number=request.POST.get("part_number"),
+            part = form.save()
 
-            quantity=request.POST.get("quantity"),
-            description=request.POST.get("description"),
+            html_content = f"""
+            <h2>New Part Request</h2>
 
-            image=request.FILES.get("image")
-        )
+            <p><b>Name:</b> {part.customer_name}</p>
 
-        html = f"""
-        <h2>New Product Request</h2>
+            <p><b>Email:</b> {part.email}</p>
 
-        <p><b>Name:</b> {part.name}</p>
+            <p><b>Phone:</b> {part.phone}</p>
 
-        <p><b>Email:</b> {part.email}</p>
+            <hr>
 
-        <p><b>Phone:</b> {part.phone}</p>
+            <p><b>Vehicle:</b> {part.vehicle_name}</p>
 
-        <p><b>Company:</b> {part.company}</p>
+            <p><b>Requested Part:</b> {part.part_name}</p>
 
-        <hr>
+            <p><b>Part Number:</b> {part.part_number}</p>
 
-        <p><b>Vehicle Company:</b> {part.vehicle_company}</p>
+            <p><b>Description:</b></p>
 
-        <p><b>Vehicle Model:</b> {part.vehicle_model}</p>
+            <p>{part.description}</p>
+            """
 
-        <p><b>Part Name:</b> {part.part_name}</p>
+            email = EmailMessage(
+                subject=f"New Part Request - {part.part_name}",
+                body=html_content,
+                from_email="spautopartssolutions@gmail.com",
+                to=["spautopartssolutions@gmail.com"],
+            )
 
-        <p><b>Part Number:</b> {part.part_number}</p>
+            email.content_subtype = "html"
 
-        <p><b>Quantity:</b> {part.quantity}</p>
+            if part.image:
+                email.attach_file(part.image.path)
 
-        <p><b>Description:</b></p>
+            email.send()
 
-        <p>{part.description}</p>
-        """
+            messages.success(
+                request,
+                "Your request has been submitted successfully."
+            )
 
-        email = EmailMessage(
-            subject="New Product Request",
-            body=html,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=["spautopartssolutions@gmail.com"],
-        )
+            return redirect("products")
 
-        email.content_subtype = "html"
+    else:
 
-        if part.image:
-            email.attach_file(part.image.path)
+        form = PartRequestForm()
 
-        email.send()
-
-        messages.success(
-            request,
-            "Your request has been submitted successfully. We will contact you soon."
-        )
-
-        return redirect("request_part")
-
-    return render(request, "pipes/request_part.html")
+    return render(
+        request,
+        "pipes/request_part.html",
+        {
+            "form": form
+        }
+    )
