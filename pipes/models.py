@@ -195,17 +195,22 @@ class QuotationItem(models.Model):
         return self.product.name
 
 class PartRequest(models.Model):
+
     customer_name = models.CharField(max_length=100)
+
     email = models.EmailField()
+
     phone = models.CharField(max_length=20)
 
     vehicle_name = models.CharField(max_length=200)
+
     part_name = models.CharField(max_length=200)
+
     part_number = models.CharField(max_length=100, blank=True)
 
     description = models.TextField(blank=True)
 
-    image = models.ImageField(upload_to='requested_parts/')
+    image = models.ImageField(upload_to="requested_parts/")
 
     created_at = models.DateTimeField(auto_now_add=True)
 

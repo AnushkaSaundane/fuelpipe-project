@@ -554,10 +554,16 @@ def add_to_cart(request, product_id):
 
     return redirect('products')
 
-from .forms import PartRequestForm
-from .models import PartRequest
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.conf import settings
 
-from django.core.mail import EmailMessage
+from .forms import PartRequestForm
+
+import base64
+import sib_api_v3_sdk
+
+
 def request_part(request):
 
     if request.method == "POST":
@@ -568,7 +574,7 @@ def request_part(request):
 
             part = form.save()
 
-            html_content = f"""
+            html = f"""
             <h2>New Part Request</h2>
 
             <p><b>Name:</b> {part.customer_name}</p>
@@ -579,9 +585,9 @@ def request_part(request):
 
             <hr>
 
-            <p><b>Vehicle:</b> {part.vehicle_name}</p>
+            <p><b>Vehicle Name:</b> {part.vehicle_name}</p>
 
-            <p><b>Requested Part:</b> {part.part_name}</p>
+            <p><b>Part Name:</b> {part.part_name}</p>
 
             <p><b>Part Number:</b> {part.part_number}</p>
 
@@ -590,26 +596,55 @@ def request_part(request):
             <p>{part.description}</p>
             """
 
-            email = EmailMessage(
-                subject=f"New Part Request - {part.part_name}",
-                body=html_content,
-                from_email="spautopartssolutions@gmail.com",
-                to=["spautopartssolutions@gmail.com"],
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key["api-key"] = settings.BREVO_API_KEY
+
+            api = sib_api_v3_sdk.TransactionalEmailsApi(
+                sib_api_v3_sdk.ApiClient(configuration)
             )
 
-            email.content_subtype = "html"
+            attachments = []
 
             if part.image:
-                email.attach_file(part.image.path)
 
-            email.send()
+                with open(part.image.path, "rb") as f:
 
-            messages.success(
-                request,
-                "Your request has been submitted successfully."
+                    attachments.append({
+                        "content": base64.b64encode(f.read()).decode(),
+                        "name": part.image.name.split("/")[-1]
+                    })
+
+            email = sib_api_v3_sdk.SendSmtpEmail(
+
+                sender={
+                    "name": "SP Auto Parts Solutions",
+                    "email": "spautopartssolutions@gmail.com"
+                },
+
+                to=[
+                    {
+                        "email": "spautopartssolutions@gmail.com",
+                        "name": "SP Auto Parts"
+                    }
+                ],
+
+                subject=f"New Part Request - {part.part_name}",
+
+                html_content=html,
+
+                attachment=attachments
+
             )
 
+            api.send_transac_email(email)
+
+            messages.success(request, "Request submitted successfully.")
+
             return redirect("products")
+
+        else:
+
+            print(form.errors)
 
     else:
 
@@ -618,7 +653,5 @@ def request_part(request):
     return render(
         request,
         "pipes/request_part.html",
-        {
-            "form": form
-        }
+        {"form": form}
     )
