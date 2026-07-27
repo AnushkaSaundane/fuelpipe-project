@@ -1,3 +1,17 @@
+{% extends 'pipes/base.html' %}
+
+{% block content %}
+
+<div class="container py-5">
+
+<h2 class="text-center mb-4">
+Can't Find Your Product?
+</h2>
+
+<p class="text-center text-muted mb-5">
+Upload product details and image. We'll help you find it.
+</p>
+
 <form method="POST" enctype="multipart/form-data">
 
 {% csrf_token %}
@@ -6,7 +20,7 @@
 
 <div class="col-md-6 mb-3">
 <label>Name</label>
-<input type="text" class="form-control" name="customer_name" required>
+<input type="text" class="form-control" name="name" required>
 </div>
 
 <div class="col-md-6 mb-3">
@@ -20,52 +34,48 @@
 </div>
 
 <div class="col-md-6 mb-3">
-<label>Vehicle Name</label>
-<input
-type="text"
-class="form-control"
-name="vehicle_name"
-placeholder="Example : Tata Ace"
-required>
+<label>Company</label>
+<input type="text" class="form-control" name="company">
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Vehicle Company</label>
+<input type="text" class="form-control" name="vehicle_company" required>
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Vehicle Model</label>
+<input type="text" class="form-control" name="vehicle_model" required>
 </div>
 
 <div class="col-md-6 mb-3">
 <label>Part Name</label>
-<input
-type="text"
-class="form-control"
-name="part_name"
-required>
+<input type="text" class="form-control" name="part_name" required>
 </div>
 
 <div class="col-md-6 mb-3">
 <label>Part Number</label>
-<input
-type="text"
-class="form-control"
-name="part_number">
+<input type="text" class="form-control" name="part_number">
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Quantity</label>
+<input type="number" class="form-control" name="quantity" value="1">
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Upload Product Image</label>
+<input type="file" class="form-control" name="image">
 </div>
 
 <div class="col-12 mb-3">
 <label>Description</label>
-<textarea
-class="form-control"
-rows="5"
-name="description"></textarea>
-</div>
-
-<div class="col-12 mb-3">
-<label>Upload Image</label>
-<input
-type="file"
-class="form-control"
-name="image"
-required>
+<textarea class="form-control" rows="5" name="description"></textarea>
 </div>
 
 <div class="col-12 text-center">
 
-<button class="btn btn-primary btn-lg">
+<button class="btn btn-primary btn-lg" type="submit">
 
 Submit Request
 
@@ -76,3 +86,7 @@ Submit Request
 </div>
 
 </form>
+
+</div>
+
+{% endblock %}
