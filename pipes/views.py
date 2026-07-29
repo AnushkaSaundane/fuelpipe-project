@@ -557,54 +557,43 @@ def add_to_cart(request, product_id):
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import EmailMessage
-
 from .forms import PartRequestForm
-
 
 def request_part(request):
 
+    print("METHOD:", request.method)
+
     if request.method == "POST":
+
+        print("POST DATA:", request.POST)
+        print("FILES:", request.FILES)
 
         form = PartRequestForm(request.POST, request.FILES)
 
         if form.is_valid():
 
+            print("FORM VALID")
+
             part = form.save()
 
-            html = f"""
-            <h2>New Part Request</h2>
-
-            <b>Name:</b> {part.customer_name}<br>
-            <b>Email:</b> {part.email}<br>
-            <b>Phone:</b> {part.phone}<br><br>
-
-            <b>Vehicle:</b> {part.vehicle_name}<br>
-            <b>Part Name:</b> {part.part_name}<br>
-            <b>Part Number:</b> {part.part_number}<br><br>
-
-            <b>Description:</b><br>
-            {part.description}
-            """
-
             email = EmailMessage(
-                subject=f"New Part Request - {part.part_name}",
-                body=html,
+                subject="New Part Request",
+                body="Testing email",
                 from_email="spautopartssolutions@gmail.com",
                 to=["spautopartssolutions@gmail.com"],
             )
-
-            email.content_subtype = "html"
 
             if part.image:
                 email.attach_file(part.image.path)
 
             email.send(fail_silently=False)
 
-            messages.success(request, "Request Submitted Successfully!")
+            messages.success(request, "Submitted Successfully")
 
             return redirect("products")
 
         else:
+
             print(form.errors)
 
     else:
