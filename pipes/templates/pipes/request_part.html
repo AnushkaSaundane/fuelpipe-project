@@ -9,7 +9,7 @@ Can't Find Your Product?
 </h2>
 
 <p class="text-center text-muted mb-5">
-Upload product details and image. We'll help you find it.
+Upload the details of the part you need.
 </p>
 
 <form method="POST" enctype="multipart/form-data">
@@ -19,8 +19,8 @@ Upload product details and image. We'll help you find it.
 <div class="row">
 
 <div class="col-md-6 mb-3">
-<label>Name</label>
-<input type="text" class="form-control" name="name" required>
+<label>Your Name</label>
+<input type="text" class="form-control" name="customer_name" required>
 </div>
 
 <div class="col-md-6 mb-3">
@@ -34,18 +34,8 @@ Upload product details and image. We'll help you find it.
 </div>
 
 <div class="col-md-6 mb-3">
-<label>Company</label>
-<input type="text" class="form-control" name="company">
-</div>
-
-<div class="col-md-6 mb-3">
-<label>Vehicle Company</label>
-<input type="text" class="form-control" name="vehicle_company" required>
-</div>
-
-<div class="col-md-6 mb-3">
-<label>Vehicle Model</label>
-<input type="text" class="form-control" name="vehicle_model" required>
+<label>Vehicle Name</label>
+<input type="text" class="form-control" name="vehicle_name" required>
 </div>
 
 <div class="col-md-6 mb-3">
@@ -58,29 +48,20 @@ Upload product details and image. We'll help you find it.
 <input type="text" class="form-control" name="part_number">
 </div>
 
-<div class="col-md-6 mb-3">
-<label>Quantity</label>
-<input type="number" class="form-control" name="quantity" value="1">
-</div>
-
-<div class="col-md-6 mb-3">
-<label>Upload Product Image</label>
-<input type="file" class="form-control" name="image">
-</div>
-
-<div class="col-12 mb-3">
+<div class="col-md-12 mb-3">
 <label>Description</label>
 <textarea class="form-control" rows="5" name="description"></textarea>
 </div>
 
+<div class="col-md-12 mb-3">
+<label>Product Image</label>
+<input type="file" class="form-control" name="image">
+</div>
+
 <div class="col-12 text-center">
-
-<button class="btn btn-primary btn-lg" type="submit">
-
+<button class="btn btn-primary btn-lg">
 Submit Request
-
 </button>
-
 </div>
 
 </div>
