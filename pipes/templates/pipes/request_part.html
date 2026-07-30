@@ -12,8 +12,7 @@ Can't Find Your Product?
 Upload the details of the part you need.
 </p>
 
-<form method="POST" enctype="multipart/form-data">
-
+<form action="{% url 'request_part' %}" method="POST" enctype="multipart/form-data">
 {% csrf_token %}
 
 <div class="row">
@@ -59,8 +58,8 @@ Upload the details of the part you need.
 </div>
 
 <div class="col-12 text-center">
-<button class="btn btn-primary btn-lg">
-Submit Request
+<button type="submit" class="btn btn-primary btn-lg">
+    Submit Request
 </button>
 </div>
 

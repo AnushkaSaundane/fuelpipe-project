@@ -1,8 +1,8 @@
 from django import forms
-from .models import PartRequest
+from .models import ProductRequest
 
 
-class PartRequestForm(forms.ModelForm):
+class ProductRequest(forms.ModelForm):
     class Meta:
-        model = PartRequest
+        model = ProductRequest
         fields = "__all__"

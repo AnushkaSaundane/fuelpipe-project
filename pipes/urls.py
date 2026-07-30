@@ -19,6 +19,5 @@ urlpatterns = [
     path('test-email/', views.test_email, name='test_email'),
     path("create-admin/", views.create_admin),
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
-    path('request-part/', views.request_part, name='request_part'),
-    
+    path("request-product/",views.request_product,name="request_product"),    
 ]
