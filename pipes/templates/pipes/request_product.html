@@ -2,72 +2,206 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container py-5">
 
-    <h2 class="text-center mb-4">
-        Can't Find Your Product?
-    </h2>
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary">
+            🔍 Can't Find Your Product?
+        </h2>
 
-    <form method="POST" enctype="multipart/form-data">
+        <p class="text-muted">
+            No worries! Tell us what you're looking for and upload a photo if you have one.
+            Our team will help you find the correct part.
+        </p>
+    </div>
 
-        {% csrf_token %}
+    <div class="card shadow border-0 rounded-4">
 
-        <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control" required>
+        <div class="card-body p-4">
+
+            <form method="POST" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="name"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            name="email"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="phone"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Vehicle Company
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="vehicle_company"
+                            placeholder="Mahindra / Tata / Maruti"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Vehicle Model
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="vehicle_model"
+                            placeholder="Scorpio / Nexon / Swift"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Vehicle Year
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="vehicle_year"
+                            placeholder="2022">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Part Name
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="part_name"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            Part Number (Optional)
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="part_number">
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">
+                            Upload Product Image
+                        </label>
+
+                        <input
+                            type="file"
+                            class="form-control"
+                            name="image"
+                            id="imageInput"
+                            accept="image/*">
+
+                        <small class="text-muted">
+                            Upload a photo of the required part if available.
+                        </small>
+                    </div>
+
+                    <div class="col-12 mb-3 text-center">
+
+                        <img
+                            id="preview"
+                            src=""
+                            style="display:none;max-width:250px;border-radius:10px;border:1px solid #ddd;padding:5px;">
+
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label class="form-label fw-bold">
+                            Additional Details
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            rows="5"
+                            name="description"
+                            placeholder="Describe the required product..."></textarea>
+                    </div>
+
+                </div>
+
+                <button class="btn btn-primary btn-lg w-100">
+
+                    📩 Submit Product Request
+
+                </button>
+
+            </form>
+
         </div>
 
-        <div class="mb-3">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Phone</label>
-            <input type="text" name="phone" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Vehicle Company</label>
-            <input type="text" name="vehicle_company" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Vehicle Model</label>
-            <input type="text" name="vehicle_model" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Vehicle Year</label>
-            <input type="text" name="vehicle_year" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label>Part Name</label>
-            <input type="text" name="part_name" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Part Number</label>
-            <input type="text" name="part_number" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label>Upload Product Image</label>
-            <input type="file" name="image" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label>Description</label>
-            <textarea name="description" rows="5" class="form-control"></textarea>
-        </div>
-
-        <button class="btn btn-primary w-100">
-            Submit Request
-        </button>
-
-    </form>
+    </div>
 
 </div>
+
+<script>
+
+document.getElementById("imageInput").onchange = function(e){
+
+    const file = e.target.files[0];
+
+    if(file){
+
+        const reader = new FileReader();
+
+        reader.onload = function(){
+
+            const preview = document.getElementById("preview");
+
+            preview.src = reader.result;
+
+            preview.style.display = "block";
+
+        }
+
+        reader.readAsDataURL(file);
+
+    }
+
+}
+
+</script>
 
 {% endblock %}

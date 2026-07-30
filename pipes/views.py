@@ -557,7 +557,7 @@ def add_to_cart(request, product_id):
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import EmailMessage
-from .forms import ProductRequest 
+from .models import ProductRequest 
 def request_product(request):
     if request.method == "POST":
 
@@ -702,4 +702,4 @@ def request_product(request):
 
         return redirect("request_product")
 
-    return render(request, "request_product.html")
+    return render(request, "pipes/request_product.html")
