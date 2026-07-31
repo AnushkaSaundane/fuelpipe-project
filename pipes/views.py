@@ -559,6 +559,11 @@ from django.contrib import messages
 from django.core.mail import EmailMessage
 from .models import ProductRequest 
 def request_product(request):
+    print("Request Method:", request.method)
+
+    if request.method == "POST":
+        print("POST request received")
+        
     if request.method == "POST":
 
         name = request.POST.get("name")
