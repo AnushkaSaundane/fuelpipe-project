@@ -558,154 +558,164 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from .models import ProductRequest 
-def request_product(request):
+# def request_product(request):
     
+#     print("METHOD =", request.method)
+
+#     if request.method == "POST":
+#         print("POST RECEIVED")
+
+#     if request.method == "POST":
+
+#         name = request.POST.get("name")
+#         email = request.POST.get("email")
+#         phone = request.POST.get("phone")
+
+#         vehicle_company = request.POST.get("vehicle_company")
+#         vehicle_model = request.POST.get("vehicle_model")
+#         vehicle_year = request.POST.get("vehicle_year")
+
+#         part_name = request.POST.get("part_name")
+#         part_number = request.POST.get("part_number")
+
+#         description = request.POST.get("description")
+
+#         image = request.FILES.get("image")
+
+#         # Save request in database
+#         product_request = ProductRequest.objects.create(
+#             name=name,
+#             email=email,
+#             phone=phone,
+#             vehicle_company=vehicle_company,
+#             vehicle_model=vehicle_model,
+#             vehicle_year=vehicle_year,
+#             part_name=part_name,
+#             part_number=part_number,
+#             description=description,
+#             image=image
+#         )
+
+#         try:
+
+#             image_html = ""
+
+#             if product_request.image:
+#                 image_url = request.build_absolute_uri(
+#                     product_request.image.url
+#                 )
+
+#                 image_html = f"""
+#                 <p><strong>Product Image:</strong></p>
+
+#                 <img src="{image_url}"
+#                      width="250"
+#                      style="border-radius:8px;border:1px solid #ddd;">
+#                 """
+
+#             html_content = f"""
+#             <html>
+#             <body style="font-family:Arial,sans-serif;">
+
+#             <h2 style="color:#2563eb;">
+#             New Product Request
+#             </h2>
+
+#             <hr>
+
+#             <h3>Customer Details</h3>
+
+#             <p><strong>Name:</strong> {name}</p>
+
+#             <p><strong>Email:</strong> {email}</p>
+
+#             <p><strong>Phone:</strong> {phone}</p>
+
+#             <hr>
+
+#             <h3>Vehicle Details</h3>
+
+#             <p><strong>Company:</strong> {vehicle_company}</p>
+
+#             <p><strong>Model:</strong> {vehicle_model}</p>
+
+#             <p><strong>Year:</strong> {vehicle_year or "N/A"}</p>
+
+#             <hr>
+
+#             <h3>Requested Product</h3>
+
+#             <p><strong>Part Name:</strong> {part_name}</p>
+
+#             <p><strong>Part Number:</strong> {part_number or "N/A"}</p>
+
+#             <p><strong>Description:</strong></p>
+
+#             <p>{description or "No description provided."}</p>
+
+#             {image_html}
+
+#             </body>
+#             </html>
+#             """
+
+#             configuration = sib_api_v3_sdk.Configuration()
+
+#             configuration.api_key["api-key"] = settings.BREVO_API_KEY
+
+#             api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+#                 sib_api_v3_sdk.ApiClient(configuration)
+#             )
+
+#             sender = {
+#                 "name": "SP Auto Parts Solutions",
+#                 "email": "spautopartssolutions@gmail.com"
+#             }
+
+#             receiver = [
+#                 {
+#                     "email": "spautopartssolutions@gmail.com",
+#                     "name": "SP Auto Parts Solutions"
+#                 }
+#             ]
+
+#             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+#                 sender=sender,
+#                 to=receiver,
+#                 reply_to={
+#                     "email": email,
+#                     "name": name
+#                 },
+#                 subject=f"Product Request - {part_name}",
+#                 html_content=html_content
+#             )
+
+#             api_instance.send_transac_email(send_smtp_email)
+
+#             messages.success(
+#                 request,
+#                 "Your product request has been submitted successfully."
+#             )
+
+#         except ApiException as e:
+
+#             print(e)
+
+#             messages.error(
+#                 request,
+#                 "Request saved, but email could not be sent."
+#             )
+
+#         return redirect("request_product")
+
+#     return render(request, "pipes/request_product.html")
+
+def request_product(request):
     print("METHOD =", request.method)
 
     if request.method == "POST":
         print("POST RECEIVED")
-        
-    if request.method == "POST":
-
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        phone = request.POST.get("phone")
-
-        vehicle_company = request.POST.get("vehicle_company")
-        vehicle_model = request.POST.get("vehicle_model")
-        vehicle_year = request.POST.get("vehicle_year")
-
-        part_name = request.POST.get("part_name")
-        part_number = request.POST.get("part_number")
-
-        description = request.POST.get("description")
-
-        image = request.FILES.get("image")
-
-        # Save request in database
-        product_request = ProductRequest.objects.create(
-            name=name,
-            email=email,
-            phone=phone,
-            vehicle_company=vehicle_company,
-            vehicle_model=vehicle_model,
-            vehicle_year=vehicle_year,
-            part_name=part_name,
-            part_number=part_number,
-            description=description,
-            image=image
-        )
-
-        try:
-
-            image_html = ""
-
-            if product_request.image:
-                image_url = request.build_absolute_uri(
-                    product_request.image.url
-                )
-
-                image_html = f"""
-                <p><strong>Product Image:</strong></p>
-
-                <img src="{image_url}"
-                     width="250"
-                     style="border-radius:8px;border:1px solid #ddd;">
-                """
-
-            html_content = f"""
-            <html>
-            <body style="font-family:Arial,sans-serif;">
-
-            <h2 style="color:#2563eb;">
-            New Product Request
-            </h2>
-
-            <hr>
-
-            <h3>Customer Details</h3>
-
-            <p><strong>Name:</strong> {name}</p>
-
-            <p><strong>Email:</strong> {email}</p>
-
-            <p><strong>Phone:</strong> {phone}</p>
-
-            <hr>
-
-            <h3>Vehicle Details</h3>
-
-            <p><strong>Company:</strong> {vehicle_company}</p>
-
-            <p><strong>Model:</strong> {vehicle_model}</p>
-
-            <p><strong>Year:</strong> {vehicle_year or "N/A"}</p>
-
-            <hr>
-
-            <h3>Requested Product</h3>
-
-            <p><strong>Part Name:</strong> {part_name}</p>
-
-            <p><strong>Part Number:</strong> {part_number or "N/A"}</p>
-
-            <p><strong>Description:</strong></p>
-
-            <p>{description or "No description provided."}</p>
-
-            {image_html}
-
-            </body>
-            </html>
-            """
-
-            configuration = sib_api_v3_sdk.Configuration()
-
-            configuration.api_key["api-key"] = settings.BREVO_API_KEY
-
-            api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
-                sib_api_v3_sdk.ApiClient(configuration)
-            )
-
-            sender = {
-                "name": "SP Auto Parts Solutions",
-                "email": "spautopartssolutions@gmail.com"
-            }
-
-            receiver = [
-                {
-                    "email": "spautopartssolutions@gmail.com",
-                    "name": "SP Auto Parts Solutions"
-                }
-            ]
-
-            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-                sender=sender,
-                to=receiver,
-                reply_to={
-                    "email": email,
-                    "name": name
-                },
-                subject=f"Product Request - {part_name}",
-                html_content=html_content
-            )
-
-            api_instance.send_transac_email(send_smtp_email)
-
-            messages.success(
-                request,
-                "Your product request has been submitted successfully."
-            )
-
-        except ApiException as e:
-
-            print(e)
-
-            messages.error(
-                request,
-                "Request saved, but email could not be sent."
-            )
-
-        return redirect("request_product")
+        print(request.POST)
+        return HttpResponse("POST RECEIVED")
 
     return render(request, "pipes/request_product.html")

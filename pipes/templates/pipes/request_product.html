@@ -208,16 +208,10 @@ document.getElementById("imageInput").onchange = function(e){
 {% endblock %} -->
 
 
-<form id="requestForm"
-      action="{% url 'request_product' %}"
-      method="POST"
-      enctype="multipart/form-data">
-
+<form id="requestForm" action="{% url 'request_product' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <!-- Keep ONLY one field for now -->
-    <input type="text" name="name" required>
+    <input type="text" name="name" placeholder="Name" required>
 
     <button type="submit">Submit</button>
-
 </form>
