@@ -19,8 +19,7 @@
 
         <div class="card-body p-4">
 
-            <form method="POST" enctype="multipart/form-data">
-
+        <form id="requestForm" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
                 <div class="row">
@@ -201,6 +200,10 @@ document.getElementById("imageInput").onchange = function(e){
     }
 
 }
+document.getElementById("requestForm").addEventListener("submit", function () {
+    console.log("FORM SUBMITTED");
+    alert("Form is submitting...");
+});
 
 </script>
 
