@@ -20,8 +20,8 @@
         <div class="card-body p-4">
 
         <form method="POST"
-            enctype="multipart/form-data"
-            onsubmit="alert('Submitting');">                
+            action="{% url 'request_product' %}"
+            enctype="multipart/form-data">
             {% csrf_token %}
 
                 <div class="row">
