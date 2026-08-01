@@ -1,4 +1,4 @@
-<!-- {% extends 'pipes/base.html' %}
+{% extends 'pipes/base.html' %}
 
 {% block content %}
 
@@ -205,13 +205,4 @@ document.getElementById("imageInput").onchange = function(e){
 
 </script>
 
-{% endblock %} -->
-
-
-<form id="requestForm" action="{% url 'request_product' %}" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    <input type="text" name="name" placeholder="Name" required>
-
-    <button type="submit">Submit</button>
-</form>
+{% endblock %}
