@@ -3,11 +3,13 @@ from import_export.widgets import ForeignKeyWidget
 from .models import Product
 
 class ProductResource(resources.ModelResource):
+    image = fields.Field(attribute='image', column_name='image')
+
     class Meta:
         model = Product
         #import_id_fields = ['part_number']  # Use part_number as unique identifier
         fields = ('part_number', 'name', 'product_type', 'description', 
-                 'specifications', 'price', 'is_featured')
+                 'specifications', 'price', 'image')
         skip_unchanged = True
         report_skipped = False
         

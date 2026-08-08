@@ -20,9 +20,10 @@
         <div class="card-body p-4">
 
         <form method="POST"
-            action="{% url 'request_product' %}"
-            enctype="multipart/form-data">
-            {% csrf_token %}
+      action="{% url 'request_product' %}"
+      enctype="multipart/form-data"
+      novalidate>
+    {% csrf_token %}  
 
                 <div class="row">
 
@@ -201,8 +202,9 @@ document.getElementById("imageInput").onchange = function(e){
 
 };
 
-document.querySelector("form").addEventListener("submit", function () {
+document.querySelector("form").addEventListener("submit", function(e) {
     alert("Form is submitting");
+    console.log("Form submitted");
 });
 
 </script>
