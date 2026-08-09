@@ -9,6 +9,222 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image as ExcelImage
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
+def export_products_with_images(modeladmin, request, queryset):
+    import os
+
+    from django.http import HttpResponse
+    from openpyxl import Workbook
+    from openpyxl.drawing.image import Image as ExcelImage
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Products"
+
+    headers = [
+        "Part Number",
+        "Product Name",
+        "Product Type",
+        "Category",
+        "Description",
+        "Specifications",
+        "Price",
+        "Featured",
+        "Image",
+    ]
+
+    for col_num, header in enumerate(headers, 1):
+        cell = worksheet.cell(
+            row=1,
+            column=col_num,
+            value=header
+        )
+
+        cell.font = Font(bold=True, size=12)
+        cell.alignment = Alignment(
+            horizontal="center",
+            vertical="center"
+        )
+        cell.fill = PatternFill(
+            fill_type="solid",
+            fgColor="D9EAF7"
+        )
+
+    worksheet.row_dimensions[1].height = 30
+
+    widths = {
+        "A": 20,
+        "B": 30,
+        "C": 20,
+        "D": 20,
+        "E": 45,
+        "F": 45,
+        "G": 15,
+        "H": 12,
+        "I": 25,
+    }
+
+    for column, width in widths.items():
+        worksheet.column_dimensions[column].width = width
+
+    products = queryset.select_related("category")
+
+    for row_num, product in enumerate(products, start=2):
+
+        worksheet.cell(
+            row=row_num,
+            column=1,
+            value=product.part_number or ""
+        )
+
+        worksheet.cell(
+            row=row_num,
+            column=2,
+            value=product.name or ""
+        )
+
+        product_type = ""
+
+        if product.product_type:
+            product_type = product.get_product_type_display()
+
+        worksheet.cell(
+            row=row_num,
+            column=3,
+            value=product_type
+        )
+
+        category_name = ""
+
+        if product.category:
+            category_name = product.category.name
+
+        worksheet.cell(
+            row=row_num,
+            column=4,
+            value=category_name
+        )
+
+        worksheet.cell(
+            row=row_num,
+            column=5,
+            value=product.description or ""
+        )
+
+        worksheet.cell(
+            row=row_num,
+            column=6,
+            value=product.specifications or ""
+        )
+
+        worksheet.cell(
+            row=row_num,
+            column=7,
+            value=float(product.price)
+            if product.price is not None
+            else None
+        )
+
+        worksheet.cell(
+            row=row_num,
+            column=8,
+            value="Yes" if product.is_featured else "No"
+        )
+
+        # ACTUAL IMAGE
+        if product.image:
+            try:
+                image_path = product.image.path
+
+                if os.path.exists(image_path):
+
+                    excel_image = ExcelImage(image_path)
+
+                    max_width = 150
+                    max_height = 100
+
+                    original_width = excel_image.width
+                    original_height = excel_image.height
+
+                    ratio = min(
+                        max_width / original_width,
+                        max_height / original_height
+                    )
+
+                    excel_image.width = int(
+                        original_width * ratio
+                    )
+
+                    excel_image.height = int(
+                        original_height * ratio
+                    )
+
+                    worksheet.add_image(
+                        excel_image,
+                        f"I{row_num}"
+                    )
+
+                    worksheet.row_dimensions[
+                        row_num
+                    ].height = 85
+
+            except Exception as error:
+                print(
+                    f"Could not export image for "
+                    f"product {product.id}: {error}"
+                )
+
+        for col_num in range(1, 10):
+            worksheet.cell(
+                row=row_num,
+                column=col_num
+            ).alignment = Alignment(
+                vertical="center",
+                wrap_text=True
+            )
+
+    worksheet.freeze_panes = "A2"
+
+    if worksheet.max_row > 1:
+        worksheet.auto_filter.ref = (
+            f"A1:I{worksheet.max_row}"
+        )
+
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+
+    for row in worksheet.iter_rows(
+        min_row=1,
+        max_row=worksheet.max_row,
+        min_col=1,
+        max_col=9
+    ):
+        for cell in row:
+            cell.border = thin_border
+
+    response = HttpResponse(
+        content_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        )
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="products_with_images.xlsx"'
+    )
+
+    workbook.save(response)
+
+    return response
+
+
+export_products_with_images.short_description = (
+    "Export Excel with Images"
+)
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
